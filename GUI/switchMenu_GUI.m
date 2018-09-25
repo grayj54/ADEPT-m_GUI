@@ -18,7 +18,7 @@ function switchMenu_GUI
     
     
     %construct the components
-    hBuild   = uicontrol(mainMenu, 'Style', 'pushbutton', 'String', 'Build', ...
+    hbuild   = uicontrol(mainMenu, 'Style', 'pushbutton', 'String', 'Build', ...
          'Position', [150, 200, 100, 100], 'Callback', ...
          {@buildButton_Callback});
 
@@ -48,7 +48,7 @@ function switchMenu_GUI
     % Initialize the UI.
     % Change units to normalized so components resize automatically.
     mainMenu.Units = 'normalized';
-    hBuild.Units = 'normalized';
+    hbuild.Units = 'normalized';
     hTest.Units = 'normalized';
     hExamine.Units = 'normalized';
     htext.Units = 'normalized';
