@@ -48,22 +48,16 @@ hTitleText     = uicontrol(hMainMenu, ...
     'FontSize', 24);
 
 % Initialize the UI. ------------------------------------------------------
-% % Change units to normalized so components resize automatically.
-% hMainMenu.Units = 'normalized';
-% hBuildButton.Units = 'normalized';
-% hTestButton.Units = 'normalized';
-% hExamineButton.Units = 'normalized';
-% hTitleText.Units = 'normalized';
 
 % make UI visible
 hMainMenu.Visible = 'on';
 
-% make menu classes -------------------------------------------------------
+% make new objects --------------------------------------------------------
 % open build menu
-device = Device;
+device = Adept;
 
 % make test menu
-environment = Environment;
+% environment = Environment;
 
 % make examine menu
 % examineMenu = ExamineMenu;
@@ -76,9 +70,9 @@ end
 
 function testButton_Callback(~, ~)
     % Open Test Menu if devices exist
-    devList =  {'Device 1', 'Device 2'}; %getBuiltDevices();
+    %devList =  {'Device 1', 'Device 2'}; %getBuiltDevices();
     %if devList.length ~= 0
-        openTestMenu(environment, devList);
+     %   openTestMenu(environment, devList);
    % else
         %device.openBuildMenu;
         %error('Build a device first');
