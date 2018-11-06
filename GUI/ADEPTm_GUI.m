@@ -65,7 +65,10 @@ device = Adept;
 % Main Menu Callbacks -----------------------------------------------------
 function buildButton_Callback(~, ~)
     % Open Build Menu and return user changed values
-    openBuildMenu(device);
+    open_devname(device);
+    %openBuildMenu(device);
+    %devicename(device);
+    
 end
 
 function testButton_Callback(~, ~)
@@ -81,7 +84,7 @@ end
 
 function examineButton_Callback(~, ~)
     % Open Examine Menu
-    % examineMenu.open;
+     examineMenu.open;
 end
 
 % Main Menu Utility Functions ---------------------------------------------
