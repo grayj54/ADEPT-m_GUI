@@ -26,17 +26,35 @@ nc=length(source);
 % set global physical constants
 
 % set up device structure
-if VERBOSE disp('A_build: Parse and interpret diktat file'); end
-if strcmp(source(nc-2:nc),'.1d')
-    [dev ierr]=a_input0_1d(dev,source);
-    if ierr > 0
-        error('Errors in diktat file')
+if isa(source,'Adept')
+    dev=a_gui_1d(dev,source);
+    % add test to make sure object came from GUI
+elseif ischar(source)
+    if strcmp(source(nc-2:nc),'.1d') 
+        if VERBOSE disp('A_build: Parse and interpret diktat file'); end
+        [dev ierr]=a_input0_1d(dev,source); 
+%         % for creation of GUI test file
+%         dev.OpCond.mode='gui_input';
+%         dev.input_file='from GUI';
+%         dev.diktats=[];
+%         gui_example=dev;
+%         A_save(gui_example);
+%         return;
+        if ierr > 0
+            error('Errors in diktat file')
+        end
+    elseif strcmp(source(nc-3:nc),'.GUI')
+        gui=A_load(source)
+        dev=a_gui_1d(dev,gui);
+    else
+        error('Not a legal diktat file name')
     end
-    if VERBOSE disp('A_build: Setup device structure and finite box mesh'); end
-    dev=a_setup(dev);
 else
-    error('Not a legal diktat file name')
+    error('Not a legal diktat file name or Adept object')
 end
+
+if VERBOSE disp('A_build: Setup device structure and finite box mesh'); end
+    dev=a_setup(dev);
 
 % get final equilibrium solution
 if VERBOSE; disp('A_build: Get final equilibrium solution with a_doeq'); end
@@ -46,8 +64,8 @@ if error_code == 0
 end
 
 % set carrier quasipotentials
-dev.node.zp=-dev.node.v;
-dev.node.zn=dev.node.v;
+% dev.node.zp=-dev.node.v;
+% dev.node.zn=dev.node.v;
 
 % save equilibrium values
 dev.ele.plo=dev.ele.pl;

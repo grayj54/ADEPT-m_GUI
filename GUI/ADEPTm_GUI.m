@@ -67,7 +67,7 @@ function buildButton_Callback(~, ~)
     % Open Build Menu and return user changed values
     openBuildMenu(device);
     %devicename(device);
-    
+
 end
 
 function testButton_Callback(~, ~)

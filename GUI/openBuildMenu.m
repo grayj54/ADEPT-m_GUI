@@ -138,6 +138,7 @@ DevNameBox = uicontrol(hBuildMenu, ...
     'Callback', @UpdateName, ...
     'Units', 'normalized', ...
     'HorizontalAlignment', 'left');
+
 % Initialize the UI. ------------------------------------------
 % make UI visible
 hBuildMenu.Visible = 'on';
@@ -196,11 +197,13 @@ hBuildMenu.Visible = 'on';
         devObj.description = hObject.String;
         disp(['Device Description: ' devObj.description]);
     end
+
     function UpdateName(hObject, ~)
-        % Sets Adept object's desc to new user entered string
+        % Sets Adept object's name to new user entered string
         devObj.name = hObject.String;
         disp(['Device Name: ' devObj.name]);
     end
+
     function UpdateTemp(hObject, ~)
         % Brings up new menu for selecting properties for the
         % bottom of device
