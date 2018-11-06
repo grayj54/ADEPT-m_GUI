@@ -192,6 +192,13 @@ hBuildMenu.Visible = 'on';
     end
 
     function SavePress(~, ~)
+        % If user didn't touch defaults then make sure they are assigned to
+        % adept object. Note: the 1 can be anything it just needs a second 
+        % input arg
+        UpdateTypeSelected(hTypeDropdown, 1);
+        UpdateDesc(hDescField, 1);
+        UpdateTemp(hTempField, 1);
+        
         % Brings up new menu for saving the device properties
         disp(['Device Type Selected: ' devObj.type]);
         temp = sprintf('%.2f', devObj.T);
@@ -206,7 +213,35 @@ hBuildMenu.Visible = 'on';
         x = devObj.input_file;
         movefile('Myfunction.mat', [x '.GUI']);%rename the current file 
         
+        hSaveComplete = figure('Visible', 'off', ...
+            'Name', 'Save Complete',...
+            'Position', [450, 200, 200, 75], ...
+            'NumberTitle', 'off', ...
+            'MenuBar', 'none', ...
+            'Units', 'normalized', ...
+            'ToolBar', 'none');
         
+        hSaveCompleteText = uicontrol(hSaveComplete, ...
+            'Style', 'text', ...
+            'String', 'Save Complete!', ...
+            'Position', [25, 45, 150, 20], ...
+            'FontSize', 12, ...
+            'Units', 'normalized', ...
+            'HorizontalAlignment', 'center');
+        
+        hSaveCompleteCloseButton = uicontrol(hSaveComplete, ...
+            'Style', 'pushbutton', ...
+            'String', 'Close', ...
+            'Position', [65, 15, 70, 25], ...
+            'Callback', @SaveCompleteClose, ...
+            'Units', 'normalized', ...
+            'FontSize', 12);
+        
+        hSaveComplete.Visible = 'on';
+            
+        function SaveCompleteClose(~, ~)
+            close(hSaveComplete);        
+        end
     end
 
     function UpdateTypeSelected(hObject, ~)
@@ -221,11 +256,13 @@ hBuildMenu.Visible = 'on';
         devObj.description = hObject.String;
         disp(['Device Description: ' devObj.description]);
     end
+
     function UpdateName(hObject, ~)
         % Sets Adept object's name to new user entered string
         devObj.input_file = hObject.String;
         disp(['Device Name: ' devObj.input_file]);
     end
+
     function UpdateTemp(hObject, ~)
         % Brings up new menu for selecting properties for the
         % bottom of device
