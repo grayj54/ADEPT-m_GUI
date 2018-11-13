@@ -19,8 +19,10 @@ if strcmp(iname,'') == 1
 end
 cmd=strcat(iname,'=item;');
 eval(cmd);
-
-if strcmp(mode,'equilibrium') % single device operating condition
+if strcmp(mode,'gui_input')
+    sname=strcat(iname,'.GUI');
+    fprintf('GUI input file for ADEPT device saved as %s\n\n',sname);
+elseif strcmp(mode,'equilibrium') % single device operating condition
     sname=strcat(iname,'.EQ');
     fprintf('ADEPT device saved as %s\n\n',sname);
 elseif strcmp(mode,'steady-state')
