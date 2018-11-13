@@ -27,6 +27,7 @@ v=0;
 p=0;
 vmp=0;
 vstep=0.05;
+
 ii=1;
 while j > 0
   v=v+vstep;
@@ -50,6 +51,7 @@ JJ(ii)=0;
 
 % Max Power
 Vmp=a_findMP(DevMP,vmp-vstep,vmp+vstep);
+
 [DevMP,Vmp,Jmp]=A_applyOpCond(DevOC,mode,'V=',Vmp,'Illum=','keep');
 VV(ii+1)=Vmp;
 JJ(ii+1)=Jmp;
@@ -167,4 +169,5 @@ global mpdev
 [mpdev,Vv,Jj]=A_applyOpCond(mpdev,'steady-state','V=',V,'Illum=','keep');
 p=-Vv*Jj;
 end
+
 

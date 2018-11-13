@@ -26,7 +26,7 @@ nc=length(source);
 % set global physical constants
 
 % set up device structure
-if isa(source,'struct')
+if isa(source,'Adept')
     dev=a_gui_1d(dev,source);
     % add test to make sure object came from GUI
 elseif ischar(source)
@@ -43,6 +43,9 @@ elseif ischar(source)
         if ierr > 0
             error('Errors in diktat file')
         end
+    elseif strcmp(source(nc-3:nc),'.GUI')
+        gui=A_load(source)
+        dev=a_gui_1d(dev,gui);
     else
         error('Not a legal diktat file name')
     end
