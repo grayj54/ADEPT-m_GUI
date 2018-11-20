@@ -83,7 +83,7 @@ end
 
 function examineButton_Callback(~, ~)
     % Open Examine Menu
-    %s examineMenu.open;
+    examinemodel;
 end
 
 % Main Menu Utility Functions ---------------------------------------------

@@ -11,9 +11,9 @@ prompt = {'Enter the name of the device'};
 title = 'Device Name';
 
 
-answer = insputdlg(prompt,title,[1 40]);
+answer = inputdlg(prompt,title,[1 40]);
 devObj.input_file = answer;
 
-hBuildMenu = openBuildMenu(devObj, 1);
+hBuildMenu = openBuildMenu(devObj);
 
 end
