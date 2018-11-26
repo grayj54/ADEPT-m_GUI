@@ -4,7 +4,9 @@ function varargout = ADEPTm_GUI(varargin)
 %   menus after their respective buttons are clicked on.
     
 close all;
-    
+global CONST
+CONST = A_const;
+
 % Initialization tasks
 mInputArgs = varargin; % Command line arguments
 mOutputArgs = {}; % Variable for storing output
@@ -66,9 +68,6 @@ device = Adept;
 function buildButton_Callback(~, ~)
     % Open Build Menu and return user changed values
     open_devname(device);
-    %openBuildMenu(device);
-    %devicename(device);
-    
 end
 
 function testButton_Callback(~, ~)
@@ -84,7 +83,7 @@ end
 
 function examineButton_Callback(~, ~)
     % Open Examine Menu
-     examineMenu.open;
+    examinemodel;
 end
 
 % Main Menu Utility Functions ---------------------------------------------

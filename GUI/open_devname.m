@@ -2,7 +2,7 @@ function hBuildMenu = open_devname(devObj)
 
 %device = Adept;
 
-hBuildMenu = figure('Visible', 'off', 'Position', ...
+hDevNameMenu = figure('Visible', 'off', 'Position', ...
                 [945, 460, 570, 365], 'Name', 'Build Menu', 'MenuBar', ...
                 'none', 'ToolBar', 'none');
            
@@ -14,6 +14,6 @@ title = 'Device Name';
 answer = inputdlg(prompt,title,[1 40]);
 devObj.input_file = answer;
 
-openBuildMenu(devObj);
+hBuildMenu = openBuildMenu(devObj);
 
 end

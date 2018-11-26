@@ -2,7 +2,6 @@ classdef Adept
 % Adept data type
 
     properties
-       % name char %name property added by Sanna 
         runno char
         eqrunno char
         nD
