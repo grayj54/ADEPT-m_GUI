@@ -9,7 +9,7 @@ function list = getBuiltDevices
         for i = 1:size(listing, 1)
             file = strsplit(listing(i).name, '.');
             title = file{1};
-            list{i} = title;
+            list{i} = title;;
         end
     end
 end
