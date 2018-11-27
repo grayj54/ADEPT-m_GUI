@@ -1,4 +1,6 @@
-function hBulkMenu = openBulkMenu(devObj, newCheck)
+
+function hBulkMenu = openBulkMenu(devObj,newCheck, selLayer)
+
 % open bulk device menu using class's current properties
 
 global CONST
@@ -12,7 +14,9 @@ hBulkMenu = figure('Visible', 'off', ...
     'Units', 'normalized', ...
     'ToolBar', 'none');
 
+
 hBulkTabs = uitabgroup(hBulkMenu);
+
 
 hBasicTab = uitab(hBulkTabs, 'Title', 'Basic Parameters');
 hMobilityTab = uitab(hBulkTabs, 'Title', 'Mobility');
@@ -23,7 +27,6 @@ hAbsorpTab = uitab(hBulkTabs, 'Title', 'Parasitic Absorption');
 
 % Set default object parameters if device is new --------------------------
 if newCheck == 1
-    
 end 
 
 % Construct the UI --------------------------------------------------------
@@ -229,6 +232,25 @@ hElecMobilityEdit = uicontrol(hMobilityTab, ...
 % Optical Generation Tab
 
 % Parasitic Absorption Tab
+
+
+ hResetButton = uicontrol(hBulkMenu, ...
+    'Style', 'pushbutton', ...
+    'String', 'Reset', ...
+    'Position', [380, 15, 75, 40], ...
+    'Callback', @ResetPress, ...
+    'Units', 'normalized', ...
+    'FontSize', 16);
+
+ 
+
+hDeleteButton = uicontrol(hBulkMenu, ...
+    'Style', 'pushbutton', ...
+    'String', 'Delete', ...
+    'Position', [580, 15, 75, 40], ...
+    'Callback', @DeletePress, ...
+    'Units', 'normalized', ...
+    'FontSize', 16);
 
 % Initialize the UI. ------------------------------------------------------
 % make UI visible
