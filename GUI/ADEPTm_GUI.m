@@ -79,11 +79,16 @@ function testButton_Callback(~, ~)
         %device.openBuildMenu;
         %error('Build a device first');
     %end
+
+    newTest();
+
 end
 
 function examineButton_Callback(~, ~)
     % Open Examine Menu
+
     examinemodel;
+
 end
 
 % Main Menu Utility Functions ---------------------------------------------
