@@ -175,7 +175,7 @@ hBuildMenu.Visible = 'on';
         % Brings up new menu for selecting properties for the bulk
         % of the device
 
-        hBulkMenu = openBulkMenu(devObj, 1);
+        hLayerMenu = openLayerMenu(devObj);
         
     end
 
