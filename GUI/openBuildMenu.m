@@ -174,9 +174,9 @@ hBuildMenu.Visible = 'on';
     function DevBulkPress(~, ~)
         % Brings up new menu for selecting properties for the bulk
         % of the device
+
+        hBulkMenu = openBulkMenu(devObj, 1);
         
-        %hBulkMenu = openBulkMenu(devObj, 1);
-        hBulkMenu = openLayerMenu(devObj);
     end
 
     function BottomDevPress(hObject, callbackdata)

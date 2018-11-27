@@ -72,24 +72,24 @@ classdef Adept
         end
         
         function disp(dev)
-            if strcmp(dev.runno,'')
+            if strcmp(dev.OpCond.mode,'gui_input')
+                fprintf('  GUI input ADEPT object\n\n');
+            elseif strcmp(dev.OpCond.mode,'equilibrium')
+                fprintf('  ADEPT Object: %s\n',dev.runno);
+                fprintf('   device type: %s\n',dev.type);
+                fprintf('          mode: %s\n',dev.OpCond.mode);
+                fprintf('\n');
+            elseif strcmp(dev.runno,'')
                 fprintf('  Empty ADEPT object\n\n');
             else
-                if strcmp(dev.OpCond.mode,'equilibrium')
-                    fprintf('  ADEPT Object: %s\n',dev.runno);
-                    fprintf('   device type: %s\n',dev.type);
-                    fprintf('          mode: %s\n',dev.OpCond.mode);
-                    fprintf('\n');
-                else
-                    fprintf('  ADEPT Object: %s\n',dev.runno);
-                    fprintf('   Equilibrium: %s\n',dev.eqrunno);
-                    fprintf('   device type: %s\n',dev.type);
-                    fprintf('          mode: %s\n',dev.OpCond.mode);
-                    fprintf('             V: %.3g Volts\n',dev.OpCond.Va);
-                    fprintf('             J: %.3g A/cm^2\n',dev.OpCond.Jt);
-                    fprintf('  Illumination: %s\n',dev.OpCond.Generation.type);
-                    fprintf('\n');
-                end
+                fprintf('  ADEPT Object: %s\n',dev.runno);
+                fprintf('   Equilibrium: %s\n',dev.eqrunno);
+                fprintf('   device type: %s\n',dev.type);
+                fprintf('          mode: %s\n',dev.OpCond.mode);
+                fprintf('             V: %.3g Volts\n',dev.OpCond.Va);
+                fprintf('             J: %.3g A/cm^2\n',dev.OpCond.Jt);
+                fprintf('  Illumination: %s\n',dev.OpCond.Generation.type);
+                fprintf('\n');
             end
         end
         
