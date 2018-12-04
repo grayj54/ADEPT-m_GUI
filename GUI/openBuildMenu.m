@@ -174,7 +174,7 @@ hBuildMenu.Visible = 'on';
     function DevBulkPress(~, ~)
         % Brings up new menu for selecting properties for the bulk
         % of the device
-        
+
         hBulkMenu = openBulkMenu(devObj, 1);
         
     end
@@ -205,13 +205,14 @@ hBuildMenu.Visible = 'on';
         disp(['Temp of Device: ' temp]);
         disp(['Desc of Device: ' devObj.description]);
         
-        data_list = strings([4,4]);%initiate a data list string that gather the data
+        global data_list 
+        data_list = strings([10,10]);%initiate a data list string that gather the data
         data_list(1) = devObj.type;%save type of the device into the first data
         data_list(2) = devObj.T;%save the temperature into the data_list 2
         data_list(3) = devObj.description;%save the description into the data_list 3
         save('Myfunction.mat','data_list');%save the data into myfunction mat
         x = devObj.input_file;
-        movefile('Myfunction.mat', [x '.GUI']);%rename the current file 
+        movefile('Myfunction.mat', [x '.mat']);%rename the current file 
         
         hSaveComplete = figure('Visible', 'off', ...
             'Name', 'Save Complete',...

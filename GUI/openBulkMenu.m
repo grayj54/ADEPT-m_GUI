@@ -1,4 +1,6 @@
-function hBulkMenu = openBulkMenu(devObj, newCheck)
+
+function hBulkMenu = openBulkMenu(devObj,newCheck, selLayer)
+
 % open bulk device menu using class's current properties
 
 global CONST
@@ -12,7 +14,9 @@ hBulkMenu = figure('Visible', 'off', ...
     'Units', 'normalized', ...
     'ToolBar', 'none');
 
+
 hBulkTabs = uitabgroup(hBulkMenu);
+
 
 hBasicTab = uitab(hBulkTabs, 'Title', 'Basic Parameters');
 hMobilityTab = uitab(hBulkTabs, 'Title', 'Mobility');
@@ -23,7 +27,6 @@ hAbsorpTab = uitab(hBulkTabs, 'Title', 'Parasitic Absorption');
 
 % Set default object parameters if device is new --------------------------
 if newCheck == 1
-    
 end 
 
 % Construct the UI --------------------------------------------------------
@@ -229,14 +232,42 @@ hElecMobilityEdit = uicontrol(hMobilityTab, ...
 
 % Parasitic Absorption Tab
 
+
+ hResetButton = uicontrol(hBulkMenu, ...
+    'Style', 'pushbutton', ...
+    'String', 'Reset', ...
+    'Position', [380, 15, 75, 40], ...
+    'Callback', @ResetPress, ...
+    'Units', 'normalized', ...
+    'FontSize', 16);
+
+ 
+
+hDeleteButton = uicontrol(hBulkMenu, ...
+    'Style', 'pushbutton', ...
+    'String', 'Delete', ...
+    'Position', [580, 15, 75, 40], ...
+    'Callback', @DeletePress, ...
+    'Units', 'normalized', ...
+    'FontSize', 16);
+hSaveAsButton = uicontrol(hBulkMenu, ...
+    'Style', 'pushbutton', ...
+    'String', 'Save As', ...
+    'Position', [480, 15, 75, 40], ...
+    'Callback', @SaveAsPress, ...
+    'Units', 'normalized', ...
+    'FontSize', 16);
 % Initialize the UI. ------------------------------------------------------
+    device = Adept;
 % make UI visible
 hBulkMenu.Visible = 'on';
 
 % Bulk Menu Callbacks -----------------------------------------------------
     function UpdateModelName(hObject, ~)
         % Sets the adept device model name to the entered string
-        % devObj.model = hObject.String
+        %devObj.model = hObject.String;
+      
+         % data_list(4) = hObject.String;
     end
 
     function UpdateThickness(hObject, ~)
@@ -244,25 +275,33 @@ hBulkMenu.Visible = 'on';
         % thickess to the converted value. Grab the units from
         % hThicknessUnitDropdown. adept object variable is any of the
         % following: t_A, t_nm, t_um, t_cm
+        %data_list(5) = hObject.String;
     end
 
     function UpdateEleAffin(hObject, ~)
         % Sets the electron affinity to the new value. adept object
         % variable is chi
+          %data_list(6) = hObject.String;
     end
 
     function UpdateBandgap(hObject, ~)
         % Sets the bandgap to the new value. adept object
         % variable is Eg or eg
+          %data_list(7) = hObject.String;
     end
 
     function UpdateDieleConst(hObject, ~)
         % Sets the dielectric constant to the new value. adept object
         % variable is ks
+         % data_list(8) = hObject.String;
     end
 
     function UpdateConductBand(hObject, ~)
         % Sets the conduction band effective density of states to the new 
         % value. adept object variable is Nc
+         % data_list(9) = hObject.String;
+    end
+    function SaveAsPress(hObject, ~)
+          open_devname(device);
     end
 end

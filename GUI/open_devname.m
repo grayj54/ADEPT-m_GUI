@@ -10,7 +10,6 @@ hDevNameMenu = figure('Visible', 'off', 'Position', ...
 prompt = {'Enter the name of the device'};
 title = 'Device Name';
 
-
 answer = inputdlg(prompt,title,[1 40]);
 devObj.input_file = answer;
 
