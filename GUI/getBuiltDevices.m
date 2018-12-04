@@ -1,6 +1,7 @@
 function list = getBuiltDevices
     % Iterates through device folder and makes a list of device
     % names.
+    
     listing = dir('**/*.GUI');
     if size(listing, 1) == 0
         list = {'No Devices Built'};

@@ -1,4 +1,4 @@
-function hLayerMenu = openLayerMenu(devObj)
+function [hLayerMenu, layers] = openLayerMenu(devObj)
 
 global CONST
 CONST = A_const;
@@ -12,7 +12,7 @@ hLayerMenu = figure('Visible', 'off', ...
             'ToolBar', 'none');
 
 
-% Construct Main Menu Components ------------------------------------------
+% Construct Layer Menu Components ------------------------------------------
 
 
 hTitleText = uicontrol(hLayerMenu, ...
@@ -22,8 +22,8 @@ hTitleText = uicontrol(hLayerMenu, ...
             'Units', 'normalized', ...
             'FontSize', 24);
 
-hDropDown = uicontrol(hLayerMenu, ...
-            'style','pop',...
+hListBox = uicontrol(hLayerMenu, ...
+            'style','listbox',...
             'position',[200, 175, 150, 150],...
             'fontsize',12,...
             'fontweight','bold',... 
@@ -43,7 +43,7 @@ hSaveButton = uicontrol(hLayerMenu, ...
 
 % make UI visible
 hLayerMenu.Visible = 'on';
-
+layers = [];
 % make new objects --------------------------------------------------------
 function AddLayer(hObject, ~)
     current_entries = cellstr(get(hObject, 'String'));
@@ -58,10 +58,9 @@ function AddLayer(hObject, ~)
         set(hObject, 'String', current_entries);
     
     elseif option_sel ~= 1 
-        openBulkMenu(devObj,1,current_entries(option_sel));
+        [~, layers(current_entries(option_sel))] = openBulkMenu(devObj,1,current_entries(option_sel));
     end
 end
-
 end
 
 
