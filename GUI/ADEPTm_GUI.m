@@ -55,19 +55,22 @@ hTitleText     = uicontrol(hMainMenu, ...
 hMainMenu.Visible = 'on';
 
 % make new objects --------------------------------------------------------
-% open build menu
 device = Adept;
-
-% make test menu
-% environment = Environment;
-
-% make examine menu
-% examineMenu = ExamineMenu;
 
 % Main Menu Callbacks -----------------------------------------------------
 function buildButton_Callback(~, ~)
     % Open Build Menu and return user changed values
-    open_devname(device);
+    answer = questdlg('Do you want to create or edit a device?', ...
+        'Create or Edit Device?', 'Create New Device', ...
+        'Edit Built Device', 'Cancel', 'Create New Device');
+    switch answer
+        case 'Create New Device'
+            open_devname(device, 0);
+        case 'Edit Built Device'
+            % load devices for user to select
+        case 'Cancel'
+            % Do Nothing
+    end
 end
 
 function testButton_Callback(~, ~)
