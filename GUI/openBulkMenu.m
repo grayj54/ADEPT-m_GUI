@@ -267,11 +267,12 @@ hBulkMenu.Visible = 'on';
         % Sets the adept device model name to the entered string
         %devObj.model = hObject.String;
       
-         % data_list(4) = hObject.String;
-
+      
+    global data_list
         % Sets the adept device model name to the selected string
         layer.model = hObject.String{hObject.Value};
         disp(['Model of Layer: ' layer.model]);
+          data_list(5) = layer.model;
 
     end
 
@@ -287,10 +288,10 @@ hBulkMenu.Visible = 'on';
         % Sets the electron affinity to the new value. adept object
         % variable is chi
 
-          %data_list(6) = hObject.String;
-
+    
         layer.chi = str2double(hObject.String);
         disp(['Electron Affinity of layer: ' sprintf('%.2f', layer.chi)]);
+     data_list(6) = layer.chi;
 
     end
 
@@ -298,33 +299,34 @@ hBulkMenu.Visible = 'on';
         % Sets the bandgap to the new value. adept object
         % variable is Eg or eg
 
-          %data_list(7) = hObject.String;
+         
 
         layer.eg = str2double(hObject.String);
         disp(['Bandgap of Layer: ' sprintf('%.2f', layer.eg)]);
-
+        data_list(7) = hObject.String;
     end
 
     function UpdateDieleConst(hObject, ~)
         % Sets the dielectric constant to the new value. adept object
         % variable is ks
 
-         % data_list(8) = hObject.String;
+         
 
         layer.ks = str2double(hObject.String);
         disp(['Dielectric Constant of Layer: ' sprintf('%.2f', layer.ks)]);
-
+        data_list(8) = layer.ks;
     end
 
     function UpdateConductBand(hObject, ~)
         % Sets the conduction band effective density of states to the new 
 
         % value. adept object variable is Nc
-         % data_list(9) = hObject.String;
+      
                  % value. adept object variable is nc
         layer.nc = str2double(hObject.String);
         disp(['conduction band effective density of states of Layer: ', ...
             sprintf('%.2E', layer.nc)]);
+            data_list(9) = layer.nc;
     end
     function SaveAsPress(hObject, ~)
           % Sanna's Save function
