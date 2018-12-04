@@ -327,8 +327,7 @@ hBulkMenu.Visible = 'on';
             sprintf('%.2E', layer.nc)]);
     end
     function SaveAsPress(hObject, ~)
-          open_devname(device);
-
+          % Sanna's Save function
     end
 
     function UpdateValenceBand(hObject, ~)

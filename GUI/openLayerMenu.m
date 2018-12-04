@@ -58,9 +58,26 @@ function AddLayer(hObject, ~)
         set(hObject, 'String', current_entries);
     
     elseif option_sel ~= 1 
-        [~, layers(current_entries(option_sel))] = openBulkMenu(devObj,1,current_entries(option_sel));
+        disp(['test', current_entries(option_sel), option_sel(1)]);
+        [~, layers{option_sel(1)-2}] = openBulkMenu(devObj,1,current_entries(option_sel));
     end
 end
+
+    function SavePress(~, ~)
+        % If user didn't touch defaults then make sure they are assigned to
+        % adept object. Note: the 1 can be anything it just needs a second 
+        % input arg
+        
+        % Brings up new menu for saving the device properties
+           
+        global data_list 
+        data_list(4) = layers;%save layers of the device into the 4th data
+        save('Myfunction.mat','data_list');%save the data into myfunction mat
+        x = devObj.input_file;
+
+        movefile('/GUI_Devices/Myfunction.mat', [x '.GUI']);%rename the current file 
+        questdlg('Save Complete!', 'Save Complete', 'OK', 'OK');
+    end
 end
 
 
