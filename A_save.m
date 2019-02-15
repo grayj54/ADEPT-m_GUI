@@ -1,4 +1,4 @@
-function flag=A_save(item)
+function flag=A_save(item,fname)
 
 try mode=item.OpCond.mode; % test if ADEPT structure
 catch
@@ -9,11 +9,19 @@ catch
     end
     if strcmp(mode,'uniform') || strcmp(mode,'mono') || strcmp(mode,'spectrum')
         mode='illum';
+    elseif strcmp(mode,'gui_input')
+        mode='gui_input';
+    elseif strcmp(mode,'diktat_input')
+        mode='diktat_input';
     else
         mode='na';
     end
 end
-iname=inputname(1);
+if nargin == 1
+   iname=inputname(1);
+else
+    iname=fname;
+end
 if strcmp(iname,'') == 1
     error('A_save: Input must be a simple variable name, not a value.')
 end
@@ -21,7 +29,10 @@ cmd=strcat(iname,'=item;');
 eval(cmd);
 if strcmp(mode,'gui_input')
     sname=strcat(iname,'.GUI');
-    fprintf('GUI input file for ADEPT device saved as %s\n\n',sname);
+    fprintf('GUI inputs for ADEPT device saved as %s\n\n',sname);
+elseif strcmp(mode,'diktat_input')
+    sname=strcat(iname,'.DIKTAT');
+    fprintf('DIKTAT inputs for ADEPT device saved as %s\n\n',sname);
 elseif strcmp(mode,'equilibrium') % single device operating condition
     sname=strcat(iname,'.EQ');
     fprintf('ADEPT device saved as %s\n\n',sname);

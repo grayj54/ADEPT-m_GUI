@@ -1,7 +1,5 @@
-function [dev kerr]=a_rlayer(p,dev,fout,ltitle,nlayer,thick)
-global VERBOSE
-
-dev.reg(nlayer).describe=ltitle;
+function [inputs,kerr]=a_rlayer(p,inputs,ltitle,nlayer)
+global VERBOSE A_FID
 
 % default layer type
 ltype='semiconductor'; % 'insulator' is a future option to include
@@ -17,7 +15,7 @@ end
 
 switch ltype
     case {'semiconductor' 'semi'}
-        [dev kerr]=a_rcustom(p,dev,fout,ltitle,nlayer,thick);
+        [inputs,kerr]=a_rcustom(p,inputs,ltitle,nlayer);
     otherwise
         kerr=1;
         if VERBOSE; fprintf('a_rlayer.m: layer type not supported.'); end

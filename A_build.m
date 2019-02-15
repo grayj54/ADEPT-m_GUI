@@ -1,4 +1,4 @@
-function dev=A_build(source)
+function [dev,inputs]=A_build(source)
 % function dev=A_build(source)
 %
 % Define the semiconductor device to be simulated and simulate at
@@ -23,35 +23,38 @@ end
 
 nc=length(source);
 
-% set global physical constants
-
-% set up device structure
-if isa(source,'Adept')
-    dev=a_gui_1d(dev,source);
-    % add test to make sure object came from GUI
-elseif ischar(source)
-    if strcmp(source(nc-2:nc),'.1d') 
-        if VERBOSE disp('A_build: Parse and interpret diktat file'); end
-        [dev ierr]=a_input0_1d(dev,source); 
-%         % for creation of GUI test file
-%         dev.OpCond.mode='gui_input';
-%         dev.input_file='from GUI';
-%         dev.diktats=[];
-%         gui_example=dev;
-%         A_save(gui_example);
-%         return;
+% create data structure for 'inputs' from DIKTAT or GUI file
+if ischar(source)
+    if strcmp(upper(source(nc-2:nc)),'.1D') 
+        if VERBOSE disp('A_build: Parse and interpret DIKTAT file'); end
+        [inputs,ierr]=a_input0_1d(source); 
         if ierr > 0
-            error('Errors in diktat file')
+            error('Errors in DIKTAT file')
         end
-    elseif strcmp(source(nc-3:nc),'.GUI')
-        gui=A_load(source)
-        dev=a_gui_1d(dev,gui);
+    elseif strcmp(upper(source(nc-6:nc)),'.DIKTAT')
+        if VERBOSE disp('A_build: interpret parsed DIKTAT file'); end
+        [inputs,ierr]=a_input0_gui(source); 
+        if ierr > 0
+            error('Errors in parsed DIKTAT file')
+        end
+    elseif strcmp(upper(source(nc-3:nc)),'.GUI')
+        if VERBOSE disp('A_build: interpret GUI file'); end
+        [inputs,ierr]=a_input0_gui(source); 
+        if ierr > 0
+            error('Errors in GUI file')
+        end
     else
-        error('Not a legal diktat file name')
+        error('Not a legal DIKTAT or GUI file name')
     end
 else
-    error('Not a legal diktat file name or Adept object')
+    error('Not a legal DIKTAT or GUI file name')
 end
+
+% process 'inputs' data structure
+  [dev,ierr]=a_process_inputs(inputs,dev);
+  if ierr > 0
+      error('Error processing inputs')
+  end
 
 if VERBOSE disp('A_build: Setup device structure and finite box mesh'); end
     dev=a_setup(dev);
