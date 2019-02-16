@@ -5,6 +5,7 @@ classdef Adept
         runno char
         eqrunno char
         nD
+        inputs struct
         input_file char
         OpCond struct
         const A_const
@@ -42,6 +43,7 @@ classdef Adept
                  dev.nD=[];
                  dev.input_file='';
                  dev.OpCond=struct;
+                 dev.OpCond.mode='';
                  dev.const=A_const;
                  dev.diktats=cell(0);
                  dev.description='';

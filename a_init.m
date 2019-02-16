@@ -21,8 +21,7 @@ else
     
     M_OR_O=getenv('$MatLab_or_Octave');
     
-    ADEPT_VERSION='ADEPT-m Beta B.6A [9/21/2018 (c) 2016, 2017, 2018]';
-    % only change was to A_examine.m to output the figure handle
+    ADEPT_VERSION='ADEPT-m Beta B.9 [2/14/2019 (c) 2016, 2017, 2018, 2019]';
     
     A_version;
    
