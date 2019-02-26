@@ -94,7 +94,7 @@ ip(10).default=[1e-6];
 
 ip(11).aliases={'show_sig'};
 ip(11).units='';
-ip(11).full_name='Show estimated number of significant digits in error';
+ip(11).full_name='Estimated significant digits in error';
 ip(11).type='string';
 ip(11).n=[1 1;1 1];
 ip(11).range=[];
@@ -129,8 +129,6 @@ ip(14).values=[];
 ip(14).default=1;
 
 ip(15).aliases={'n_diverge' 'ndiv'};
-ip(15).units=' ';
-ip(15).full_name='Number of consecutive times correction term can increase before solution is assumed to diverge';
 ip(15).type='number';
 ip(15).n=[1 1;1 1];
 ip(15).range=[2 inf];

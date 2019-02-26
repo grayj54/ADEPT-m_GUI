@@ -224,6 +224,8 @@ if ierr > 0
 else
     for i=1:length(ip)
         strct(i).aliases=ip(i).aliases;
+        try strct(i).units=ip(i).units; end
+        try strct(i).full_name=ip(i).full_name; end
         strct(i).type=ip(i).type;
         strct(i).n=ip(i).n;
         strct(i).range=ip(i).range;
