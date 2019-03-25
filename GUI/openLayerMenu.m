@@ -59,6 +59,8 @@ function [hLayerMenu, layers] = openLayerMenu(devObj)
     % Build Default Layer 1
     createSubTabs(2);
     
+    hLayerMenu.Visible = 'on';
+    
     function SetDevThickStat(~, ~)
         hDevThickText.String = ['Device Thickness:  ' getDevThickness()];
     end
@@ -136,9 +138,41 @@ function [hLayerMenu, layers] = openLayerMenu(devObj)
             {'Constant', 'Sloped Linear', 'Caughey-Thomas'}, ...
             [225, 440, 225, 20], 16, @UpdateMobilityModel);
         
-        hHoleMobilityFuncText = makeText(MyTabArray{3, index}, ...
-            'mu = (mu_max - mu_min)/(1 + (N/N_ref)^2) + mu_min', ...
-            [50, 280, 250, 80], 'left', 14);
+        hEqAxes = axes(MyTabArray{3, index}, ...
+            'Units', 'normalized',...
+            'Position', [0, 0, 1, 1], ...
+            'Color', 'none', 'XColor', 'none', 'YColor', 'none');
+        
+        % Constant Model
+        Eq1 = '$\mu = y$'; % y is a constant that the user enters and is assigned to both u_min and u_max
+        
+        % Must use text() function since it is on axes and uicontrol()
+        % doesn't support latex syntax.
+        hEq1Text = text(hEqAxes, 0.07, 0.475, Eq1, ... 
+            'Interpreter', 'latex', ...
+            'BackgroundColor', 'c', ...
+            'FontSize', 14); 
+        
+        hEq1Text.Visible = 'on';
+        
+        % Sloped Liner Model
+        Eq2 = '$\mu = (\frac{\mu_{end} - \mu_{start}}{Layer\ Thickness}) N + \mu_{start}$'; 
+        
+        hEq2Text = text(hEqAxes, 0.07, 0.475, Eq2, ...  
+            'Interpreter', 'latex', ...
+            'BackgroundColor', 'c', ...
+            'FontSize', 14); 
+        
+        hEq2Text.Visible = 'off';
+        % Caughey-Thomas Model
+        Eq3 = '$\mu = \frac{\mu_{max} - \mu_{min}}{1 + (\frac{N}{N_{ref}})^{\alpha}} + \mu_{min}$';
+        
+        hEq3Text = text(hEqAxes, 0.07, 0.475, Eq3, ... 
+            'Interpreter', 'latex', ...
+            'BackgroundColor', 'c', ...
+            'FontSize', 14); 
+        
+        hEq3Text.Visible = 'off';
         
 %         hHoleMobilityText = makeText(MyTabArray{3, index}, ...
 %             'Hole Mobility (cm^2/V-s):', [225, 440, 200, 20], ...
@@ -215,6 +249,8 @@ function [hLayerMenu, layers] = openLayerMenu(devObj)
             '0.00', [450, 500, 100, 20], 12, @UpdateElecRecombCoeff);
         hElecRecombCoeffEdit.Visible = 'off';
         
+        
+        
         % Build Basic Parameters Tab Functions ----------------------------
         function UpdateEleAffin(hObject, eventData)
             % edits adept/class object
@@ -246,10 +282,21 @@ function [hLayerMenu, layers] = openLayerMenu(devObj)
         
         function UpdateMobilityModel(hObject, eventData)
             % Make all related text and edit boxes invisible.
-            
+            hEq1Text.Visible = 'off';
+            hEq2Text.Visible = 'off';
+            hEq3Text.Visible = 'off';
             
             % Make relevant text and edit boxes visible.
-            
+            switch hObject.String{hObject.Value} 
+                case 'Constant'
+                    hEq1Text.Visible = 'on';
+                case 'Sloped Linear'
+                    hEq2Text.Visible = 'on';
+                case 'Caughey-Thomas'
+                    hEq3Text.Visible = 'on';
+                otherwise
+                    % do nothing
+            end
             
             % edit adept/class object
             
@@ -320,8 +367,6 @@ function [hLayerMenu, layers] = openLayerMenu(devObj)
             % edits adept/class object
         end
     end
-
-    hLayerMenu.Visible = 'on';
     
     function editTable(~, callBackData)
        %  contained in callBackData is: 

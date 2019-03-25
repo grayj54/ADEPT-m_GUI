@@ -6,6 +6,7 @@ function textHandle = makeText(parent, text, position, HA, fontSize)
 % the left side of the figure, y is the distance from the bottom of
 % the figure, w is the width of the textbox, and h is the height of
 % the object box.
+% HA is the horizontal alignment of the text, can be left, right or center
 % fontSize is the size of the text
 
 textHandle = uicontrol(parent, ...

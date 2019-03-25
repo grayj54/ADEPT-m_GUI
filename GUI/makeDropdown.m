@@ -2,7 +2,7 @@ function dropdownHandle = makeDropdown(parent, choices, position, fontSize, func
 % To make code more readable use this funciton when setting up dropdowns
 % parent is the tab or figure that the object is located on
 % choices is a cell array containing character array of the dropdown's
-% chioces
+% chioces. e.g. {'this', 'is', 'an', 'example'}
 % position is a 1x4 array [x y w h] where x is the distance from
 % the left side of the figure, y is the distance from the bottom of
 % the figure, w is the width of the textbox, and h is the height of
