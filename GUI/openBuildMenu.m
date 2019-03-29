@@ -8,8 +8,6 @@ function hBuildMenu = openBuildMenu(devObj)
 global CONST
 CONST = A_const;
 
-
-
 % create and then hide the UI as it is being constructed ------
 hBuildMenu = figure('Visible', 'off', ...
     'Position', [20, 150, 570, 365], ...
@@ -30,16 +28,8 @@ hBuildTitleText = uicontrol(hBuildMenu, ...
 
 hDevNameText = uicontrol(hBuildMenu, ...
     'Style', 'text', ...
-    'String', 'Device Name:', ...
-    'Position', [20, 100, 350, 20], ...
-    'FontSize', 12, ...
-    'Units', 'normalized', ...
-    'HorizontalAlignment', 'left');
-
-hDevNameText_fromBuildWindow = uicontrol(hBuildMenu, ...
-    'Style', 'text', ...
-    'String', devObj.input_file , ...
-    'Position', [130, 100, 350, 20], ...
+    'String', ['Device File:  ' devObj.input_file], ...
+    'Position', [15, 100, 355, 20], ...
     'FontSize', 12, ...
     'Units', 'normalized', ...
     'HorizontalAlignment', 'left');
@@ -62,8 +52,8 @@ hDescText = uicontrol(hBuildMenu, ...
 
 hTempText = uicontrol(hBuildMenu, ...
     'Style', 'text', ...
-    'String', 'Temperature:', ...
-    'Position', [15, 135, 100, 20], ...
+    'String', [devObj.device(1).ip(1).full_name ':'], ...
+    'Position', [15, 135, 175, 20], ...
     'FontSize', 12, ...
     'Units', 'normalized', ...
     'HorizontalAlignment', 'left');
@@ -120,20 +110,21 @@ hTypeDropdown = uicontrol(hBuildMenu, ...
     'Style', 'popupmenu', ...
     'String', {'Solar Cell', 'Diode', 'Generic'}, ...
     'Position', [130, 240, 100, 20], ...
-    'Value', getType(devObj.type), ...
+    'Value', getSetStrVal(devObj.device(1).ip(2), {'Solar Cell', 'Diode', 'Generic'}), ...
     'Units', 'normalized', ...
     'Callback', @UpdateTypeSelected);
 
 hTempUnitDropdown = uicontrol(hBuildMenu, ...
     'Style', 'popupmenu', ...
-    'String', {'K', 'C'}, ...
-    'Position', [195, 135, 35, 20], ...
-    'Value', 1, ...
-    'Units', 'normalized');
+    'String', devObj.device(1).ip(1).units, ...
+    'Position', [270, 135, 35, 20], ...
+    'Value', getNameVal(devObj.device(1).ip(1)), ...
+    'Units', 'normalized', ...
+    'Callback', @UpdateTemp);
 
 hDescField = uicontrol(hBuildMenu, ...
     'Style', 'edit', ...
-    'String', devObj.description, ...
+    'String', devObj.title, ...
     'Position', [15, 170, 350, 20], ...
     'Callback', @UpdateDesc, ...
     'Units', 'normalized', ...
@@ -141,8 +132,8 @@ hDescField = uicontrol(hBuildMenu, ...
 
 hTempField = uicontrol(hBuildMenu, ...
     'Style', 'edit', ...
-    'String', getT(devObj.T), ...
-    'Position', [130, 135, 50, 20], ...
+    'String', getSetNumVal(devObj.device(1).ip(1)), ...
+    'Position', [205, 135, 50, 20], ...
     'Callback', @UpdateTemp, ...
     'Units', 'normalized', ...
     'HorizontalAlignment', 'left');
@@ -162,6 +153,7 @@ hTempField = uicontrol(hBuildMenu, ...
 %     'Callback', @UpdateName, ...
 %     'Units', 'normalized', ...
 %     'HorizontalAlignment', 'left');
+
 % Initialize the UI. ------------------------------------------
 % make UI visible
 hBuildMenu.Visible = 'on';
@@ -180,19 +172,6 @@ hBuildMenu.Visible = 'on';
 
         hLayerMenu = openLayerMenu(devObj);
         
-    end
-
-    function [val] = getType(type)
-        switch type
-            case 'Solar Cell'
-                val = 1;
-            case 'Diode'
-                val = 2;
-            case 'Generic'
-                val = 3;
-            otherwise
-                val = 1;
-        end
     end
 
     function BottomDevPress(hObject, callbackdata)
@@ -230,53 +209,85 @@ hBuildMenu.Visible = 'on';
         x = devObj.input_file;
 
         movefile('/GUI_Devices/Myfunction.mat', [x '.GUI']);%rename the current file 
-
         
         questdlg('Save Complete!', 'Save Complete', 'OK', 'OK');
     end
 
     function UpdateTypeSelected(hObject, ~)
+        % Sets type of device to selected
         typeVal = hObject.Value;
         typeStr = hObject.String;
-        devObj.type = typeStr{typeVal};
-        disp(['Device Type Selected: ' devObj.type]);
+        devObj.device(1).ip(2).set = typeStr{typeVal};
     end
 
     function UpdateDesc(hObject, ~)
-        % Sets Adept object's desc to new user entered string
-        devObj.description = hObject.String;
-        disp(['Device Description: ' devObj.description]);
+        % Sets desc to new user entered string
+        devObj.title = hObject.String;
     end
 
-    function [tstring] = getT(temp)
-        if isempty(temp)
-            tstring = '300';
-        else
-            tstring = string(temp);
-        end
-    end
-
-    function UpdateName(hObject, ~)
+    %function UpdateName(hObject, ~)
         % Sets Adept object's name to new user entered string
-        devObj.input_file = hObject.String;
-        disp(['Device Name: ' devObj.input_file]);
-    end
+        %devObj.input_file = hObject.String;
+        %disp(['Device Name: ' devObj.input_file]);
+    %end
 
     function UpdateTemp(hObject, ~)
-        % Brings up new menu for selecting properties for the
-        % bottom of device
-        if (hTempUnitDropdown.String{hTempUnitDropdown.Value} == 'C')
-            % subtract abs_zero from user input value then assigned
-            % to devObj.T
-            devObj.T = str2double(hObject.String) - CONST.abs_zero;
-            temp_K = sprintf('%.2f', devObj.T);
-            disp(['Temperature in C: ',  hObject.String]);
-            disp(['Temperature in K: ', temp_K]);
-        else % user selected K
-            devObj.T = str2double(hObject.String);
-            temp = sprintf('%.2f', devObj.T);
-            disp(['Temperature in K: ' temp]);
+        % Sets device operating temperature to user entered value
+        num = str2double(hTempField.String);
+        if ~isnan(num)
+            devObj.device(1).ip(1).set = num;
+            
+            if (hTempUnitDropdown.Value == 2)
+                devObj.device(1).ip(1).name = 'T_C';
+            elseif (hTempUnitDropdown.Value == 1)
+                devObj.device(1).ip(1).name = 'T_K';
+            end
+                
+        else
+            errordlg('Temperature must be a number!','Invalid Entry')
+            hObject.String = '';
         end
+    end
+
+    % Create Utility functions --------------------------------------------
+    function val = getSetStrVal(obj, array)
+        if ~isfield(obj, 'set')
+            if contains(obj.default{1}, '_')
+                newID = strrep(obj.default{1}, '_', ' ');
+                obj.set = newID;
+            else
+                obj.set = obj.default{1};
+            end
+        end
+        
+        for i = 1:size(array, 2)
+            if strcmp(obj.set, array{i})
+                val = i;
+                break;
+            end
+        end
+    end
+
+    function val = getNameVal(obj)
+        if ~isfield(obj, 'name')
+            obj.name = obj.aliases{1};
+        end
+        
+        for i = 1:size(obj.aliases, 2)
+            if strcmp(obj.name, obj.aliases{i})
+                val = i;
+                break;
+            end
+        end
+    end
+
+    function str = getSetNumVal(obj)
+        if ~isfield(obj, 'set')
+            obj.set = obj.default(1);
+        end
+        
+        str = num2str(obj.set);
+        
     end
 end
 

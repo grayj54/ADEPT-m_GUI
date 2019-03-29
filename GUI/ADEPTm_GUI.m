@@ -55,7 +55,7 @@ hTitleText     = uicontrol(hMainMenu, ...
 hMainMenu.Visible = 'on';
 
 % make new objects --------------------------------------------------------
-device = Adept;
+device = defaultDevObj();
 
 % Main Menu Callbacks -----------------------------------------------------
 function buildButton_Callback(~, ~)

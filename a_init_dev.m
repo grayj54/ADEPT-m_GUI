@@ -11,7 +11,7 @@ ip(1).default=[300];
 
 ip(2).aliases={'type'};
 ip(2).units='';
-ip(2).full_name='Device Type'
+ip(2).full_name='Device Type';
 ip(2).type='string';
 ip(2).n=[1 1;1 1];
 ip(2).range=[];
@@ -26,3 +26,4 @@ ip(3).n=[1 1;1 1];
 ip(3).range=[1 1000];
 ip(3).values=[];
 ip(3).default=[1];
+end
