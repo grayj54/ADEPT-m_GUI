@@ -1,4 +1,5 @@
-function buttonHandle = makeButton(parent, name, position, fontSize, funcNameHandle) 
+function buttonHandle = makeButton(parent, name, position, fontSize, ...
+    funcNameHandle) 
 % To make code more readable use this funciton when setting up buttons
 % parent is the tab or figure that the object is located on
 % name is the text that will appear on the button in ''

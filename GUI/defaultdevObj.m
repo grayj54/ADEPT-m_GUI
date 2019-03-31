@@ -1,4 +1,4 @@
-classdef defaultDevObj
+classdef defaultDevObj < handle
 % Adept data type
 
     properties
