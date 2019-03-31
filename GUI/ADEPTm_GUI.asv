@@ -60,7 +60,7 @@ device = defaultDevObj();
 % Main Menu Callbacks -----------------------------------------------------
 function buildButton_Callback(~, ~)
     figureArray = findall(groot, 'Type', 'figure');
-    if length(figureArray) < 2  || ~strcmp(figureArray(2).Name, 'Build Menu')
+    if (length(figureArray) < 2   ~strcmp(figureArray(2).Name, 'Build Menu')
         % Open Build Menu if not already open and return user changed values
         answer = questdlg('Do you want to create or edit a device?', ...
             'Create or Edit Device?', 'Create New Device', ...
