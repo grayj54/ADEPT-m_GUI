@@ -118,27 +118,34 @@ hBuildMenu.Visible = 'on';
         % If user didn't touch defaults then make sure they are assigned to
         % adept object. Note: the 1 can be anything it just needs a second 
         % input arg
-        UpdateTypeSelected(hTypeDropdown, 1);
-        UpdateDesc(hDescField, 1);
-        UpdateTemp(1, 1);
-        
-        % Brings up new menu for saving the device properties
-        disp(['Device Type Selected: ' devObj.type]);
-        temp = sprintf('%.2f', devObj.T);
-        disp(['Temp of Device: ' temp]);
-        disp(['Desc of Device: ' devObj.description]);
-        
-        global data_list 
-        data_list = strings([10,10]);%initiate a data list string that gather the data
-        data_list(1) = devObj.type;%save type of the device into the first data
-        data_list(2) = devObj.T;%save the temperature into the data_list 2
-        data_list(3) = devObj.description;%save the description into the data_list 3
-        save('Myfunction.mat','data_list');%save the data into myfunction mat
-        x = devObj.input_file;
+%         UpdateTypeSelected(hTypeDropdown, 1);
+%         UpdateDesc(hDescField, 1);
+%         UpdateTemp(1, 1);
+%         
+%         % Brings up new menu for saving the device properties
+%         disp(['Device Type Selected: ' devObj.type]);
+%         temp = sprintf('%.2f', devObj.T);
+%         disp(['Temp of Device: ' temp]);
+%         disp(['Desc of Device: ' devObj.description]);
+%         
+%         global data_list 
+%         data_list = strings([10,10]);%initiate a data list string that gather the data
+%         data_list(1) = devObj.type;%save type of the device into the first data
+%         data_list(2) = devObj.T;%save the temperature into the data_list 2
+%         data_list(3) = devObj.description;%save the description into the data_list 3
+%         save('Myfunction.mat','data_list');%save the data into myfunction mat
+%         x = devObj.input_file;
 
-        movefile('/GUI_Devices/Myfunction.mat', [x '.GUI']);%rename the current file 
+%         movefile('/GUI_Devices/Myfunction.mat', [x '.GUI']);%rename the current file 
+        currentFolder = pwd;
+        filename = devObj.input_file(1: length(devObj.input_file)-4);
+        errorCode = A_save(devObj, filename);
+        if errorCode 
+            uiwait(errordlg('Save Failed!', 'Error'));
+        else
+            uiwait(msgbox('Save Complete!', 'Success'));
+        end
         
-        questdlg('Save Complete!', 'Save Complete', 'OK', 'OK');
     end
 
     %function UpdateName(hObject, ~)

@@ -74,8 +74,8 @@ function buildButton_Callback(~, ~)
                 % Do Nothing
         end
     else
-        errordlg('Please save and close current device before creating or editing another.', ...
-            'Error');
+        uiwait(errordlg('Please save and close current device before creating or editing another.', ...
+            'Error'));
     end
 end
 
