@@ -1,5 +1,9 @@
 function flag=A_save(item,fname)
+% item is inputs structure
+% fname is optional and can be the full path and name of the file without a
+% file type (i.e. ".GUI").
 
+flag = 0; % flag = 1 means an error occurred.
 try mode=item.OpCond.mode; % test if ADEPT structure
 catch
     % test if Illumination structure
@@ -23,7 +27,9 @@ else
     iname=fname;
 end
 if strcmp(iname,'') == 1
-    error('A_save: Input must be a simple variable name, not a value.')
+    flag = 1;
+    fprintf('A_save: Input must be a simple variable name, not a value.');
+    return;
 end
 cmd=strcat(iname,'=item;');
 eval(cmd);
@@ -54,4 +60,4 @@ else
 end
 
 save(sname,iname);
-
+end
