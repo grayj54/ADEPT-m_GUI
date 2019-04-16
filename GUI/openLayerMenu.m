@@ -22,11 +22,11 @@ function [hLayerMenu] = openLayerMenu(devObj)
         'fontsize',9,...
         'ColumnName',{'Select', 'Layer Name', 'Semiconductor Model Type', ...
         'Layer Thickness', 'Thickness Units', 'Move Up', 'Move Down'}, ...
-        'Data', {false, 'Layer 1', 'Choose', '-999', 'Choose', 'Move Up', ...
+        'Data', {false, 'Layer 1', 'Custom', '-999', 'A', 'Move Up', ...
                 'Move Down'},...
-        'ColumnFormat', ({'logical', 'char', {'Simple', 'Custom', 'Silicon',...
-                            'GaAs', 'Germainium'}, 'char', {'cm', 'mm', 'um',...
-                            'nm', 'A'}, [], []}),...
+        'ColumnFormat', ({'logical', 'char', {'Custom', 'Simple', ...
+                            'Silicon', 'GaAs', 'Germainium'}, 'char', ...
+                            devObj.layers(1).ip(1).units, [], []}),...
         'ColumnEditable', [true true true true true false false], ...
         'Units', 'normalized', ...
         'CellEditCallback', @editTable, ...
@@ -64,6 +64,51 @@ function [hLayerMenu] = openLayerMenu(devObj)
     function SetDevThickStat(~, ~)
         hDevThickText.String = ['Device Thickness:  ' getDevThickness()];
     end
+
+    function strnum = getDevThickness(~, ~, ~)
+        numLayers = size(hLayerTable.Data, 1);
+        unitArray = hLayerTable.Data(:, 5); % cell array
+        lengthArray = hLayerTable.Data(:,4); % cell array
+        
+        sum = 0;
+        for i = 1:numLayers
+            add = str2num(lengthArray{i});
+            switch unitArray{i}
+                case 'cm'
+                    sum = sum + (add*10^8); % convert to A 
+                case 'mm'
+                    sum = sum + (add*10^7); % convert to A
+                case 'um'
+                    sum = sum + (add*10^4); % convert to A
+                case 'nm'
+                    sum = sum + (add*10); % convert to A
+                case 'A'
+                    sum = sum + add;
+                case 'Choose'
+                    % Do nothing or send a alert box at the end to infom
+                    % the user to chose units for rows [x, y, ...].
+            end
+        end
+        
+        % add logic for selected units of dev thickness
+        selectedUnit = hDevThickUnitDropdown.String{hDevThickUnitDropdown.Value};
+        switch selectedUnit
+            case 'cm'
+                sum = sum/(10^8);
+            case 'mm'
+                sum = sum/(10^7);
+            case 'um'
+                sum = sum/(10^4);
+            case 'nm'
+                sum = sum/10;
+            case 'A'
+                % do nothing
+            otherwise
+                sum = '-999';
+        end
+        
+        strnum = sprintf('%.5f', sum);
+    end
     
     function createSubTabs(index)
         MyTabArray{2, index} = uitabgroup(MyTabArray{1, index}); 
@@ -72,269 +117,466 @@ function [hLayerMenu] = openLayerMenu(devObj)
         % Look into uitab "userdata" property
         % Look into uitab "deleteFcn" property
         
-        layersIP = devObj.layers(1).ip;
+        layersIP = devObj.layers(index-1).ip;
         
         % Build Basic Parameters Tab Visuals ------------------------------
         hOpenOptParamMenu = makeButton(MyTabArray{3, index}, ...
-            'Edit Optical Parameters', [50, 40, 300, 40], ...
+            'Edit Optical Parameters', [50, 20, 300, 40], ...
             16, @openOptParamMenu);
-        
-        %hDevThickText = makeText(MyTabArray{1, 1}, ...
-        %    '', [50, 645, 500, 25], 'left', 16);
-        %SetDevThickStat();
     
         hParamText = makeText(MyTabArray{3, index}, ...
-            'Parameters:', [50, 700, 150, 40], 'left', 16);
+            'Parameters:', [40, 710, 150, 40], 'left', 16);
+        
+        hMaxtext = makeText(MyTabArray{3, index}, 'Max', ...
+            [450, 725, 100, 25], 'center', 14);
+        
+        hMintext = makeText(MyTabArray{3, index}, 'Min', ...
+            [575, 725, 100, 25], 'center', 14);
         
         hEleAffinText = makeText(MyTabArray{3, index}, ...
-            [layersIP(3).full_name '(' layersIP(3).units '):'], ...
-            [25, 720, 400, 20], 'right', 12);
+            [layersIP(3).full_name ' (' layersIP(3).units '):'], ...
+            [225, 690, 200, 20], 'right', 12);
 
-        hEleAffinEdit = makeEditBox(MyTabArray{3, index}, ...
-            layersIP(3), [450, 720, 100, 20], 12, @UpdateEleAffin, 'num');
+        hEleAffinMaxEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(3), [450, 690, 100, 20], 12, ...
+            {@UpdateParams, layersIP(3)}, 'num');
+        
+        hEleAffinMinEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(3), [575, 690, 100, 20], 12, ...
+            {@UpdateParams, layersIP(3)}, 'num');
 
         hBandgapText = makeText(MyTabArray{3, index}, ...
-            [layersIP(4).full_name '(' layersIP(4).units '):'],...
-            [25, 680, 400, 20], 'right', 12);
+            [layersIP(4).full_name ' (' layersIP(4).units '):'],...
+            [25, 655, 400, 20], 'right', 12);
 
-        hBandgapEdit = makeEditBox(MyTabArray{3, index}, ...
-            layersIP(4), [450, 680, 100, 20], 12, @UpdateBandgap, 'num');
+        hBandgapMaxEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(4), [450, 655, 100, 20], 12, ...
+            {@UpdateParams, layersIP(4)}, 'num');
+        
+        hBandgapMinEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(4), [575, 655, 100, 20], 12, ...
+            {@UpdateParams, layersIP(4)}, 'num');
 
         hDieleConstText = makeText(MyTabArray{3, index}, ...
-            [layersIP(5).full_name ':'], [25, 640, 400, 20], ...
+            [layersIP(5).full_name ':'], [25, 620, 400, 20], ...
             'right', 12);
 
-        hDieleConstEdit = makeEditBox(MyTabArray{3, index}, ...
-            layersIP(5), [450, 640, 100, 20], 12, @UpdateDieleConst, 'num');
+        hDieleConstMaxEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(5), [450, 620, 100, 20], 12, ...
+            {@UpdateParams, layersIP(5)}, 'num');
+        
+        hDieleConstMinEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(5), [575, 620, 100, 20], 12, ...
+            {@UpdateParams, layersIP(5)}, 'num');
 
         hConductBandText = makeText(MyTabArray{3, index}, ...
-            [layersIP(6).full_name '(' layersIP(6).units '):'], ...
-            [25, 600, 400, 20], 'right', 12);
+            [layersIP(6).full_name ' (' layersIP(6).units '):'], ...
+            [25, 585, 400, 20], 'right', 12);
 
-        hConductBandEdit = makeEditBox(MyTabArray{3, index}, ...
-            layersIP(6), [450, 600, 100, 20], 12, @UpdateConductBand, 'num');
+        hConductBandMaxEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(6), [450, 585, 100, 20], 12, ...
+            {@UpdateParams, layersIP(6)}, 'num');
+        
+        hConductBandMinEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(6), [575, 585, 100, 20], 12, ...
+            {@UpdateParams, layersIP(6)}, 'num');
 
         hValenceBandText = makeText(MyTabArray{3, index}, ...
-            [layersIP(7).full_name '(' layersIP(7).units '):'], ...
-            [25, 560, 400, 20], 'right', 12);
+            [layersIP(7).full_name ' (' layersIP(7).units '):'], ...
+            [25, 550, 400, 20], 'right', 12);
 
-        hValenceBandEdit = makeEditBox(MyTabArray{3, index}, ...
-            layersIP(7), [450, 560, 100, 20], 12, @UpdateValenceBand, 'num');
+        hValenceBandMaxEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(7), [450, 550, 100, 20], 12, ...
+            {@UpdateParams, layersIP(7)}, 'num');
 
+        hValenceBandMinEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(7), [575, 550, 100, 20], 12, ...
+            {@UpdateParams, layersIP(7)}, 'num');
+        
         hElecThermVelocityText = makeText(MyTabArray{3, index}, ...
-            [layersIP(10).full_name '(' layersIP(10).units '):'], ...
-            [25, 520, 400, 20], 'right', 12);
+            [layersIP(10).full_name ' (' layersIP(10).units '):'], ...
+            [25, 515, 400, 20], 'right', 12);
 
-        hElecThermVelocityEdit = makeEditBox(MyTabArray{3, index}, ...
-            layersIP(10), [450, 520, 100, 20], 12, ...
-            @UpdateElecThermVelocity, 'num');
+        hElecThermVelocityMaxEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(10), [450, 515, 100, 20], 12, ...
+            {@UpdateParams, layersIP(10)}, 'num');
+        
+        hElecThermVelocityMinEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(10), [575, 515, 100, 20], 12, ...
+            {@UpdateParams, layersIP(10)}, 'num');
 
         hHoleThermVelocityText = makeText(MyTabArray{3, index}, ...
-            [layersIP(11).full_name '(' layersIP(11).units '):'], ...
+            [layersIP(11).full_name ' (' layersIP(11).units '):'], ...
             [25, 480, 400, 20], 'right', 12);
 
-        hHoleThermVelocityEdit = makeEditBox(MyTabArray{3, index}, ...
+        hHoleThermVelocityMaxEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(11), [450, 480, 100, 20], 12, ...
-            @UpdateHoleThermVelocity, 'num');
+            {@UpdateParams, layersIP(11)}, 'num');
         
-        % ip for mobility starts at 117
-        hMobilityModelText = makeText(MyTabArray{3, index}, ...
-            'Mobility Model:', [50, 420, 150, 40], 'left', 16);
+        hHoleThermVelocityMinEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(11), [575, 480, 100, 20], 12, ...
+            {@UpdateParams, layersIP(11)}, 'num');
         
-        hMobilityModelDropdown = makeDropdown(MyTabArray{3, index}, ...
-            {'Constant', 'Sloped Linear', 'Caughey-Thomas'}, ...
-            [225, 440, 225, 20], 16, @UpdateMobilityModel);
+        hPlotAxis = axes(MyTabArray{3, index}, ...
+            'Units', 'normalized',...
+            'Position', [0.1, 0.15, .4, .4]); 
+        
+        % ip for C-T mobility starts at 117        
+        % choices are 'linear' and 'C-T' which are vague
+        % Electron Mobility
+        hElecText = makeText(MyTabArray{3, index}, ...
+            'Electrons:', [450, 440, 100, 20], 'left', 12);
+        
+        hElecMobModelDropdown = makeDropdown(MyTabArray{3, index}, ...
+            layersIP(117).values, [575, 445, 100, 20], 10, ...
+            {@UpdateElecMobilityModel, layersIP(117)}, layersIP(117), 'set');     
+        
+        hElecMobMaxText = makeText(MyTabArray{3, index}, ...
+            'max:',  [450, 355, 100, 20], 'center', 12);
+        
+        hElecMobStartText = makeText(MyTabArray{3, index}, ...
+            'Start value:',  [450, 355, 100, 20], 'center', 12);
+        
+        hElecMobMaxEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(118), [575, 355, 100, 20], 12, ...
+            {@UpdateParams, layersIP(118)}, 'num');
+        
+        hElecMobMinText = makeText(MyTabArray{3, index}, ...
+            'min:', [450, 320, 100, 20], 'center', 12);
+        
+        hElecMobEndText = makeText(MyTabArray{3, index}, ...
+            'End Value:', [450, 320, 100, 20], 'center', 12);
+        
+        hElecMobMinEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(119), [575, 320, 100, 20], 12, ...
+            {@UpdateParams, layersIP(119)}, 'num');
+        
+        hElecMobNrefText = makeText(MyTabArray{3, index}, ...
+            'Nref:', [450, 285, 100, 20], 'center', 12);
+        
+        hElecMobNrefEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(120), [575, 285, 100, 20], 12, ...
+            {@UpdateParams, layersIP(120)}, 'num');
+        
+        hElecMobAlphaText = makeText(MyTabArray{3, index}, ...
+            'alpha:', [450, 250, 100, 20], 'center', 12);
+        
+        hElecMobAlphaEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(121), [575, 250, 100, 20], 12, ...
+            {@UpdateParams, layersIP(121)}, 'num');
+        
+        hElecMobMaxText.Visible = 'off';
+        hElecMobMinText.Visible = 'off';
+        hElecMobNrefText.Visible = 'off';
+        hElecMobNrefEdit.Visible = 'off';
+        hElecMobNrefText.Enable = 'off';
+        hElecMobAlphaText.Visible = 'off';
+        hElecMobAlphaEdit.Visible = 'off';
+        hElecMobAlphaEdit.Enable = 'off';
         
         hEqAxes = axes(MyTabArray{3, index}, ...
             'Units', 'normalized',...
             'Position', [0, 0, 1, 1], ...
-            'Color', 'none', 'XColor', 'none', 'YColor', 'none');
+            'Color', 'none', 'XColor', 'none', 'YColor', 'none'); 
         
-        % Constant Model
-        Eq1 = '$\mu = y$'; % y is a constant that the user enters and is assigned to both u_min and u_max
+        % Linear Model
+        Eq1 = '$\mu = (\mu_{end} - \mu_{start}) N + \mu_{start}$'; 
         
         % Must use text() function since it is on axes and uicontrol()
         % doesn't support latex syntax.
-        hEq1Text = text(hEqAxes, 0.07, 0.475, Eq1, ... 
+        hEq1Text = text(hEqAxes, 0.59, 0.53, Eq1, ...  
             'Interpreter', 'latex', ...
             'BackgroundColor', 'c', ...
             'FontSize', 14); 
         
         hEq1Text.Visible = 'on';
+        % Caughey-Thomas Model
+        Eq2 = '$\mu = \frac{\mu_{max} - \mu_{min}}{1 + (\frac{N}{N_{ref}})^{\alpha}} + \mu_{min}$';
         
-        % Sloped Liner Model
-        Eq2 = '$\mu = (\frac{\mu_{end} - \mu_{start}}{Layer\ Thickness}) N + \mu_{start}$'; 
-        
-        hEq2Text = text(hEqAxes, 0.07, 0.475, Eq2, ...  
+        hEq2Text = text(hEqAxes, 0.64, 0.53, Eq2, ... 
             'Interpreter', 'latex', ...
             'BackgroundColor', 'c', ...
             'FontSize', 14); 
         
         hEq2Text.Visible = 'off';
-        % Caughey-Thomas Model
-        Eq3 = '$\mu = \frac{\mu_{max} - \mu_{min}}{1 + (\frac{N}{N_{ref}})^{\alpha}} + \mu_{min}$';
         
-        hEq3Text = text(hEqAxes, 0.07, 0.475, Eq3, ... 
+        % Hole Mobility
+        hHoleText = makeText(MyTabArray{3, index}, ...
+            'Holes:', [450, 210, 100, 20], 'left', 12);
+        
+        hHoleMobModelDropdown = makeDropdown(MyTabArray{3, index}, ...
+            layersIP(122).values, [575, 215, 100, 20], 10, ...
+            @UpdateHoleMobilityModel, layersIP(122), 'set');     
+        
+        hHoleMobMaxText = makeText(MyTabArray{3, index}, ...
+            'max:',  [450, 125, 100, 20], 'center', 12);
+        
+        hHoleMobStartText = makeText(MyTabArray{3, index}, ...
+            'Start value:',  [450, 125, 100, 20], 'center', 12);
+        
+        hHoleMobMaxEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(123), [575, 125, 100, 20], 12, ...
+            {@UpdateParams, layersIP(123)}, 'num');
+        
+        hHoleMobMinText = makeText(MyTabArray{3, index}, ...
+            'min:', [450, 90, 100, 20], 'center', 12);
+        
+        hHoleMobEndText = makeText(MyTabArray{3, index}, ...
+            'End Value:', [450, 90, 100, 20], 'center', 12);
+        
+        hHoleMobMinEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(124), [575, 90, 100, 20], 12, ...
+            {@UpdateParams, layersIP(124)}, 'num');
+        
+        hHoleMobNrefText = makeText(MyTabArray{3, index}, ...
+            'Nref:', [450, 55, 100, 20], 'center', 12);
+        
+        hHoleMobNrefEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(125), [575, 55, 100, 20], 12, ...
+            {@UpdateParams, layersIP(125)}, 'num');
+        
+        hHoleMobAlphaText = makeText(MyTabArray{3, index}, ...
+            'alpha:', [450, 20, 100, 20], 'center', 12);
+        
+        hHoleMobAlphaEdit = makeEditBox(MyTabArray{3, index}, ...
+            layersIP(126), [575, 20, 100, 20], 12, ...
+            {@UpdateParams, layersIP(126)}, 'num');
+        
+        hHoleMobMaxText.Visible = 'off';
+        hHoleMobMinText.Visible = 'off';
+        hHoleMobNrefText.Visible = 'off';
+        hHoleMobNrefEdit.Visible = 'off';
+        hHoleMobNrefText.Enable = 'off';
+        hHoleMobAlphaText.Visible = 'off';
+        hHoleMobAlphaEdit.Visible = 'off';
+        hHoleMobAlphaEdit.Enable = 'off';
+        
+        hEqAxes = axes(MyTabArray{3, index}, ...
+            'Units', 'normalized',...
+            'Position', [0, 0, 1, 1], ...
+            'Color', 'none', 'XColor', 'none', 'YColor', 'none'); 
+        
+        % Linear Model
+        % Must use text() function since it is on axes and uicontrol()
+        % doesn't support latex syntax.
+        hEq3Text = text(hEqAxes, 0.59, 0.23, Eq1, ...  
             'Interpreter', 'latex', ...
             'BackgroundColor', 'c', ...
             'FontSize', 14); 
         
-        hEq3Text.Visible = 'off';
+        hEq3Text.Visible = 'on';
+        % Caughey-Thomas Model
+        hEq4Text = text(hEqAxes, 0.64, 0.23, Eq2, ... 
+            'Interpreter', 'latex', ...
+            'BackgroundColor', 'c', ...
+            'FontSize', 14); 
         
-%         hHoleMobilityText = makeText(MyTabArray{3, index}, ...
-%             'Hole Mobility (cm^2/V-s):', [225, 440, 200, 20], ...
-%             'right', 12);
-% 
-%         hHoleMobilityEdit = makeEditBox(MyTabArray{3, index}, ...
-%             '100.00', [450, 440, 100, 20], 12, @UpdateHoleMobility);
-% 
-%         hElecMobilityText = makeText(MyTabArray{3, index}, ...
-%             'Electron Mobility (cm^2/V-s):', [200, 400, 225, 20], ...
-%             'right', 12);
-% 
-%         hElecMobilityEdit = makeEditBox(MyTabArray{3, index}, ...
-%             '100.00', [450, 400, 100, 20], 12, @UpdateElecMobility);
+        hEq4Text.Visible = 'off';
+        
+        % Plot Mobility
+        plotMobility();
         
         % Build Trap Parameters Tab Visuals -------------------------------
-        hFixedIonDonorDensityText = makeText(MyTabArray{4, index}, ...
-            'Fixed ionized donor density (#/cm^-3):', [75, 740, 350, 20], ...
-            'right', 12);
-
-        hFixedIonDonorDensityEdit = makeEditBox(MyTabArray{4, index}, ...
-            '0.00', [450, 740, 100, 20], 12, @UpdateFixedIonDonorDensity);
-        
-        hFixedIonAcceptorDensityText = makeText(MyTabArray{4, index}, ...
-            'Fixed ionized acceptor density (#/cm^-3):', ...
-            [75, 700, 350, 20], 'right', 12);
-
-        hFixedIonAcceptorDensityEdit = makeEditBox(MyTabArray{4, index}, ...
-            '0.00', [450, 700, 100, 20], 12, ...
-            @UpdateFixedIonAcceptorDensity);
-        
-        hDonorDensityText = makeText(MyTabArray{4, index}, ...
-            'Donor density (#/cm^-3):', [75, 660, 350, 20], 'right', 12);
-
-        hDonorDensityEdit = makeEditBox(MyTabArray{4, index}, ...
-            '0.00', [450, 660, 100, 20], 12, @UpdateDonorDensity);
-        
-        hDonorEnergyText = makeText(MyTabArray{4, index}, ...
-            'Donor energy Ec-Et (eV):', [75, 620, 350, 20], ...
-            'right', 12);
-
-        hDonorEnergyEdit = makeEditBox(MyTabArray{4, index}, ...
-            '-100.00', [450, 620, 100, 20], 12, @UpdateDonorEnergy);
-        
-        hRecombTypeText = makeText(MyTabArray{4, index}, ...
-            'Recombination Type:', [75, 580, 350, 20], 'right', 12);
-
-        hRecombTypeDropdown = makeDropdown(MyTabArray{4, index}, ...
-            {'Radiative', 'Auger', 'SHR', 'SLT'}, [450, 580, 150, 20], ...
-            12, @ShowSelectedRecombFields);
-        
-        hRecombCoeffText = makeText(MyTabArray{4, index}, ...
-            'Recombination coefficient (cm^3/s):', [75, 540, 350, 20], ...
-            'right', 12);
-
-        hRecombCoeffEdit = makeEditBox(MyTabArray{4, index}, ...
-            '0.00', [450, 540, 100, 20], 12, @UpdateRecombCoeff);
-        
-        hHoleRecombCoeffText = makeText(MyTabArray{4, index}, ...
-            'Hole Recombination coefficient (cm^6/s):', ...
-            [75, 540, 350, 20], 'right', 12);
-        hHoleRecombCoeffText.Visible = 'off';
-
-        hHoleRecombCoeffEdit = makeEditBox(MyTabArray{4, index}, ...
-            '0.00', [450, 540, 100, 20], 12, @UpdateHoleRecombCoeff);   
-        hHoleRecombCoeffEdit.Visible = 'off';
-      
-        hElecRecombCoeffText = makeText(MyTabArray{4, index}, ...
-            'Electron Recombination coefficient (cm^6/s):', ...
-            [75, 500, 350, 20], 'right', 12);
-        hElecRecombCoeffText.Visible = 'off';
-
-        hElecRecombCoeffEdit = makeEditBox(MyTabArray{4, index}, ...
-            '0.00', [450, 500, 100, 20], 12, @UpdateElecRecombCoeff);
-        hElecRecombCoeffEdit.Visible = 'off';
+%         hFixedIonDonorDensityText = makeText(MyTabArray{4, index}, ...
+%             'Fixed ionized donor density (#/cm^-3):', [75, 740, 350, 20], ...
+%             'right', 12);
+% 
+%         hFixedIonDonorDensityEdit = makeEditBox(MyTabArray{4, index}, ...
+%             '0.00', [450, 740, 100, 20], 12, @UpdateFixedIonDonorDensity);
+%         
+%         hFixedIonAcceptorDensityText = makeText(MyTabArray{4, index}, ...
+%             'Fixed ionized acceptor density (#/cm^-3):', ...
+%             [75, 700, 350, 20], 'right', 12);
+% 
+%         hFixedIonAcceptorDensityEdit = makeEditBox(MyTabArray{4, index}, ...
+%             '0.00', [450, 700, 100, 20], 12, ...
+%             @UpdateFixedIonAcceptorDensity);
+%         
+%         hDonorDensityText = makeText(MyTabArray{4, index}, ...
+%             'Donor density (#/cm^-3):', [75, 660, 350, 20], 'right', 12);
+% 
+%         hDonorDensityEdit = makeEditBox(MyTabArray{4, index}, ...
+%             '0.00', [450, 660, 100, 20], 12, @UpdateDonorDensity);
+%         
+%         hDonorEnergyText = makeText(MyTabArray{4, index}, ...
+%             'Donor energy Ec-Et (eV):', [75, 620, 350, 20], ...
+%             'right', 12);
+% 
+%         hDonorEnergyEdit = makeEditBox(MyTabArray{4, index}, ...
+%             '-100.00', [450, 620, 100, 20], 12, @UpdateDonorEnergy);
+%         
+%         hRecombTypeText = makeText(MyTabArray{4, index}, ...
+%             'Recombination Type:', [75, 580, 350, 20], 'right', 12);
+% 
+%         hRecombTypeDropdown = makeDropdown(MyTabArray{4, index}, ...
+%             {'Radiative', 'Auger', 'SHR', 'SLT'}, [450, 580, 150, 20], ...
+%             12, @ShowSelectedRecombFields);
+%         
+%         hRecombCoeffText = makeText(MyTabArray{4, index}, ...
+%             'Recombination coefficient (cm^3/s):', [75, 540, 350, 20], ...
+%             'right', 12);
+% 
+%         hRecombCoeffEdit = makeEditBox(MyTabArray{4, index}, ...
+%             '0.00', [450, 540, 100, 20], 12, @UpdateRecombCoeff);
+%         
+%         hHoleRecombCoeffText = makeText(MyTabArray{4, index}, ...
+%             'Hole Recombination coefficient (cm^6/s):', ...
+%             [75, 540, 350, 20], 'right', 12);
+%         hHoleRecombCoeffText.Visible = 'off';
+% 
+%         hHoleRecombCoeffEdit = makeEditBox(MyTabArray{4, index}, ...
+%             '0.00', [450, 540, 100, 20], 12, @UpdateHoleRecombCoeff);   
+%         hHoleRecombCoeffEdit.Visible = 'off';
+%       
+%         hElecRecombCoeffText = makeText(MyTabArray{4, index}, ...
+%             'Electron Recombination coefficient (cm^6/s):', ...
+%             [75, 500, 350, 20], 'right', 12);
+%         hElecRecombCoeffText.Visible = 'off';
+% 
+%         hElecRecombCoeffEdit = makeEditBox(MyTabArray{4, index}, ...
+%             '0.00', [450, 500, 100, 20], 12, @UpdateElecRecombCoeff);
+%         hElecRecombCoeffEdit.Visible = 'off';
         
         
         
         % Build Basic Parameters Tab Functions ----------------------------
-        function UpdateEleAffin(hObject, eventData)
-            % edits adept/class object
+        function UpdateParams(hObject, eventData, editedIP)
+            plotMobility();
+            if isfield(editedIP, 'full_name')
+               if strcmp(editedIP.full_name, 'Operating Temperature')
+                   UpdateIP(hObject, devObj, editedIP.full_name, hTempField, ...
+                       hTempUnitDropdown);
+               else
+                   UpdateIP(hObject, devObj, editedIP.full_name);
+               end
+            else
+               UpdateIP(hObject, devObj, editedIP);
+            end
         end
         
-        function UpdateBandgap(hObject, eventData)
-            % edits adept/class object
-        end
-        
-        function UpdateDieleConst(hObject, eventData)
-            % edits adept/class object
-        end
-        
-        function UpdateConductBand(hObject, eventData)
-            % edits adept/class object
-        end
-        
-        function UpdateValenceBand(hObject, eventData)
-            % edits adept/class object
-        end
-        
-        function UpdateElecThermVelocity(hObject, eventData)
-            % edits adept/class object
-        end
-        
-        function UpdateHoleThermVelocity(hObject, eventData)
-            % edits adept/class object
-        end
-        
-        function UpdateMobilityModel(hObject, eventData)
+        function UpdateElecMobilityModel(hObject, eventData, editedIP)
             % Make all related text and edit boxes invisible.
+%             hEq1Text.Visible = 'off';
             hEq1Text.Visible = 'off';
             hEq2Text.Visible = 'off';
-            hEq3Text.Visible = 'off';
+            hElecMobMaxText.Visible = 'off';
+            hElecMobMinText.Visible = 'off';
+            hElecMobNrefText.Visible = 'off';
+            hElecMobNrefEdit.Visible = 'off';
+            hElecMobNrefText.Enable = 'off';
+            hElecMobAlphaText.Visible = 'off';
+            hElecMobAlphaEdit.Visible = 'off';
+            hElecMobAlphaEdit.Enable = 'off';
+            hElecMobStartText.Visible = 'off';
+            hElecMobEndText.Visible = 'off';
             
             % Make relevant text and edit boxes visible.
             switch hObject.String{hObject.Value} 
-                case 'Constant'
+                case 'linear'
                     hEq1Text.Visible = 'on';
-                case 'Sloped Linear'
+                    hElecMobStartText.Visible = 'on';
+                    hElecMobEndText.Visible = 'on';
+                case 'C-T'
                     hEq2Text.Visible = 'on';
-                case 'Caughey-Thomas'
-                    hEq3Text.Visible = 'on';
+                    hElecMobMaxText.Visible = 'on';
+                    hElecMobMinText.Visible = 'on';
+                    hElecMobNrefText.Visible = 'on';
+                    hElecMobNrefEdit.Visible = 'on';
+                    hElecMobNrefText.Enable = 'on';
+                    hElecMobAlphaText.Visible = 'on';
+                    hElecMobAlphaEdit.Visible = 'on';
+                    hElecMobAlphaEdit.Enable = 'on';
                 otherwise
                     % do nothing
             end
             
-            % edit adept/class object
+            % edit ip struct
+            UpdateIP(hObject, devObj, editedIP.full_name);
+            
+        end        
+        
+        function UpdateHoleMobilityModel(hObject, eventData, editedIP)
+            % Make all related text and edit boxes invisible.
+%             hEq1Text.Visible = 'off';
+            hEq3Text.Visible = 'off';
+            hEq4Text.Visible = 'off';
+            hHoleMobMaxText.Visible = 'off';
+            hHoleMobMinText.Visible = 'off';
+            hHoleMobNrefText.Visible = 'off';
+            hHoleMobNrefEdit.Visible = 'off';
+            hHoleMobNrefText.Enable = 'off';
+            hHoleMobAlphaText.Visible = 'off';
+            hHoleMobAlphaEdit.Visible = 'off';
+            hHoleMobAlphaEdit.Enable = 'off';
+            hHoleMobStartText.Visible = 'off';
+            hHoleMobEndText.Visible = 'off';
+            
+            % Make relevant text and edit boxes visible.
+            switch hObject.String{hObject.Value} 
+                case 'linear'
+                    hEq3Text.Visible = 'on';
+                    hHoleMobStartText.Visible = 'on';
+                    hHoleMobEndText.Visible = 'on';
+                case 'C-T'
+                    hEq4Text.Visible = 'on';
+                    hHoleMobMaxText.Visible = 'on';
+                    hHoleMobMinText.Visible = 'on';
+                    hHoleMobNrefText.Visible = 'on';
+                    hHoleMobNrefEdit.Visible = 'on';
+                    hHoleMobNrefText.Enable = 'on';
+                    hHoleMobAlphaText.Visible = 'on';
+                    hHoleMobAlphaEdit.Visible = 'on';
+                    hHoleMobAlphaEdit.Enable = 'on';
+                otherwise
+                    % do nothing
+            end
+            
+            % edit ip struct
+            num = 1; % num should be the position of the layer that was edited
+            UpdateIP(hObject, devObj, editedIP.full_name, num);
+            
+        end        
+        
+        function plotMobility
+            elecModel = hElecMobModelDropdown.String{hElecMobModelDropdown.Value};
+            holeModel = hHoleMobModelDropdown.String{hHoleMobModelDropdown.Value};
+            
+            switch elecModel
+                case 'linear'
+                    startVal = str2double(hElecMobMaxEdit.String);
+                    endVal = str2double(hElecMobMinEdit.String);
+                    NElec = logspace(1, 21, 21);
+                    muElec = linspace(startVal,endVal,21);
+                case 'C-T'
+                    % Do something else
+                otherwise
+                    % Do nothing
+            end
+            
+            switch holeModel
+                case 'linear'
+                    startVal = str2double(hHoleMobMaxEdit.String);
+                    endVal = str2double(hHoleMobMinEdit.String);
+                    NHole = logspace(1, 21, 21);
+                    muHole = linspace(startVal,endVal,21);
+                case 'C-T'
+                    % Do something else
+                otherwise
+                    % Do nothing
+            end
+            
+            muPlot = semilogx(hPlotAxis, NElec, muElec, 'r', NHole, muHole, 'b');
+            legend(muPlot, 'Electron Mobility', 'Hole Mobility');
+            hPlotAxis.XLabel.String = 'Concentration N';
+            hPlotAxis.YLabel.Interpreter ='tex';
+            hPlotAxis.YLabel.String = '\mu';
+            hPlotAxis.Title.String = 'Mobility';
+            hPlotAxis.Title.FontSize = 16;
+            hPlotAxis.XGrid = 'on';
             
         end
-        
-%         function UpdateHoleMobility(hObject, eventData)
-%             % edits adept/class object
-%         end
-%         
-%         function UpdateElecMobility(hObject, eventData)
-%             % edits adept/class object
-%         end
-        
-        
         % Build Trap Parameters Tab Functions -----------------------------
-        function UpdateFixedIonDonorDensity(hObject, eventData)
-            % edits adept/class object
-        end
-        
-        function UpdateFixedIonAcceptorDensity(hObject, eventData)
-            % edits adept/class object
-        end
-        
-        function UpdateDonorDensity(hObject, eventData)
-            % edits adept/class object
-        end
-        
-        function UpdateDonorEnergy(hObject, eventData)
-            % edits adept/class object
-        end
-        
+              
         function ShowSelectedRecombFields(hObject, eventData)
             % Hide all Recomb Fields
             hRecombCoeffText.Visible = 'off';
@@ -360,18 +602,6 @@ function [hLayerMenu] = openLayerMenu(devObj)
                 otherwise
                     % Do nothing
             end
-        end
-        
-        function UpdateRecombCoeff(hObject, eventData)
-            % edits adept/class object
-        end
-        
-        function UpdateHoleRecombCoeff(hObject, eventData)
-            % edits adept/class object
-        end
-        
-        function UpdateElecRecombCoeff(hObject, eventData)
-            % edits adept/class object
         end
     end
     
@@ -402,7 +632,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
                        
                        if MyTabArray{1, row+1}.Title == hLayerTable.Data{row, 2}
                            currentTab = MyTabArray{3, row+1};
-                           % Set values in class to silicon
+                           % Set values in ip to silicon
                            
                            % Show new values on layer tab
                            
@@ -598,48 +828,5 @@ function [hLayerMenu] = openLayerMenu(devObj)
         strnum = sprintf('%d', num);
     end
 
-    function strnum = getDevThickness(~, ~, ~)
-        numLayers = size(hLayerTable.Data, 1);
-        unitArray = hLayerTable.Data(:, 5); % cell array
-        lengthArray = hLayerTable.Data(:,4); % cell array
-        
-        sum = 0;
-        for i = 1:numLayers
-            add = str2num(lengthArray{i});
-            switch unitArray{i}
-                case 'cm'
-                    sum = sum + (add*10^8); % convert to A 
-                case 'mm'
-                    sum = sum + (add*10^7); % convert to A
-                case 'um'
-                    sum = sum + (add*10^4); % convert to A
-                case 'nm'
-                    sum = sum + (add*10); % convert to A
-                case 'A'
-                    sum = sum + add;
-                case 'Choose'
-                    % Do nothing or send a alert box at the end to infom
-                    % the user to chose units for rows [x, y, ...].
-            end
-        end
-        
-        % add logic for selected units of dev thickness
-        selectedUnit = hDevThickUnitDropdown.String{hDevThickUnitDropdown.Value};
-        switch selectedUnit
-            case 'cm'
-                sum = sum/(10^8);
-            case 'mm'
-                sum = sum/(10^7);
-            case 'um'
-                sum = sum/(10^4);
-            case 'nm'
-                sum = sum/10;
-            case 'A'
-                % do nothing
-            otherwise
-                sum = '-999';
-        end
-        
-        strnum = sprintf('%.5f', sum);
-    end
+    
 end

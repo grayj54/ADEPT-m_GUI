@@ -58,6 +58,10 @@ switch param_edited
         
     case default.layers(1).ip(11).full_name % hole thermal velocity (cm/s)
         
+    case default.layers(1).ip(117).full_name % Mobility model for electrons
+        dev.layer(varargin{1}).ip(117).set = hObject.String{hObject.Value};
+    case default.layers(1).ip(122).full_name % Mobility model for holes
+        dev.layer(varargin{1}).ip(122).set = hObject.String{hObject.Value};
     otherwise
         % Throw error
 end
