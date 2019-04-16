@@ -7,7 +7,6 @@ function [hLayerMenu] = openLayerMenu(devObj)
         'Units', 'normalized', ...
         'ToolBar', 'none');
 
-
     hTopTabs = uitabgroup(hLayerMenu);
     MyTabArray = {};
     MyTabArray{1, 1} = uitab(hTopTabs, 'Title', 'Home');
