@@ -58,6 +58,10 @@ handles.plotchoice = 'none';
 handles.unit = 'um';
 handles.flag1 = 1;
 handles.flag2 = 0;
+
+% find .eq file in the directory
+% use A_load to load those files and create device name
+%set(handles.popupmenu1,'String',devicenames)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -119,11 +123,38 @@ switch command
     case 'Plot Choice'
         handles.plotchoice = 'none';
         handles.flag2 = 0;
+    case 'carrier'
+        handles.plotchoice = 'carrier';
+        handles.flag2 = 1;
+    case 'charge'
+        handles.plotchoice = 'charge';
+        handles.flag2 = 1;
+    case 'current'
+        handles.plotchoice = 'current';
+        handles.flag2 = 1;
+    case 'doping'
+        handles.plotchoice = 'doping';
+        handles.flag2 = 1;
     case 'eband'
         handles.plotchoice = 'eband';
         handles.flag2 = 1;
-    case 'carrier'
-        handles.plotchoice = 'carrier';
+    case 'field'
+        handles.plotchoice = 'field';
+        handles.flag2 = 1;
+    case 'genrate'
+        handles.plotchoice = 'genrate';
+        handles.flag2 = 1;
+    case 'potential'
+        handles.plotchoice = 'potential';
+        handles.flag2 = 1;
+    case 'recomb'
+        handles.plotchoice = 'recomb';
+        handles.flag2 = 1;
+    case 'ac_charge'
+        handles.plotchoice = 'ac_charge';
+        handles.flag2 = 1;
+    case 'ac_current'
+        handles.plotchoice = 'ac_current';
         handles.flag2 = 1;
 end
 guidata(hObject, handles);
