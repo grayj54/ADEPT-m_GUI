@@ -54,9 +54,6 @@ hTitleText     = uicontrol(hMainMenu, ...
 % make UI visible
 hMainMenu.Visible = 'on';
 
-% make new objects --------------------------------------------------------
-device = defaultDevObj();
-
 % Main Menu Callbacks -----------------------------------------------------
 function buildButton_Callback(~, ~)
     figureArray = findall(groot, 'Type', 'figure');
@@ -67,9 +64,13 @@ function buildButton_Callback(~, ~)
             'Edit Built Device', 'Cancel', 'Create New Device');
         switch answer
             case 'Create New Device'
+                device = defaultDevObj();
                 hBuildMenu = open_devname(device, 0);
             case 'Edit Built Device'
                 % load devices for user to select
+                [file, path] = uigetfile;
+                device = A_load(file);
+                hBuildMenu = openBuildMenu(device);
             case 'Cancel'
                 % Do Nothing
         end
