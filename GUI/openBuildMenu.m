@@ -24,18 +24,8 @@ hDevNameText = makeText(hBuildMenu, ['Device File:  ' devObj.input_file], ...
 hTypeText = makeText(hBuildMenu, 'Device Type:', [15, 240, 100, 20], ...
     'left', 12);
 
-<<<<<<< HEAD
 hDescText = makeText(hBuildMenu, 'Description:', [15, 205, 90, 20], ...
     'left', 12);
-=======
-hDevNameText_fromBuildWindow = uicontrol(hBuildMenu, ...
-    'Style', 'text', ...
-    'String', devObj.input_file, ...
-    'Position', [130, 100, 350, 20], ...
-    'FontSize', 12, ...
-    'Units', 'normalized', ...
-    'HorizontalAlignment', 'left');
->>>>>>> 5a779391b49835271467c439c7e7d79a58f3ba45
 
 hTempText = makeText(hBuildMenu, [devObj.device(1).ip(1).full_name ':'], ...
     [15, 135, 175, 20], 'left', 12);
@@ -80,16 +70,6 @@ hTempField = makeEditBox(hBuildMenu, deviceIP(1), ...
 % DevNameEdit = makeEditBox(hBuildMenu, 'Enter name here', ...
 %     [15, 70, 180, 20], 12, @UpdateName);
 
-<<<<<<< HEAD
-=======
-% DevNameBox = uicontrol(hBuildMenu, ...d
-%     'Style', 'edit', ...
-%     'String', 'Enter name here', ...
-%     'Position', [15, 70, 180, 20], ...
-%     'Callback', @UpdateName, ...
-%     'Units', 'normalized', ...
-%     'HorizontalAlignment', 'left');
->>>>>>> 5a779391b49835271467c439c7e7d79a58f3ba45
 % Initialize the UI. ------------------------------------------
 % make UI visible
 hBuildMenu.Visible = 'on';
@@ -138,70 +118,27 @@ hBuildMenu.Visible = 'on';
     end
 
     function SavePress(~, ~)
-        % If user didn't touch defaults then make sure they are assigned to
-        % adept object. Note: the 1 can be anything it just needs a second 
-        % input arg
-<<<<<<< HEAD
-%         UpdateTypeSelected(hTypeDropdown, 1);
-%         UpdateDesc(hDescField, 1);
-%         UpdateTemp(1, 1);
-%         
-%         % Brings up new menu for saving the device properties
-%         disp(['Device Type Selected: ' devObj.type]);
-%         temp = sprintf('%.2f', devObj.T);
-%         disp(['Temp of Device: ' temp]);
-%         disp(['Desc of Device: ' devObj.description]);
-%         
-%         global data_list 
-%         data_list = strings([10,10]);%initiate a data list string that gather the data
-%         data_list(1) = devObj.type;%save type of the device into the first data
-%         data_list(2) = devObj.T;%save the temperature into the data_list 2
-%         data_list(3) = devObj.description;%save the description into the data_list 3
-%         save('Myfunction.mat','data_list');%save the data into myfunction mat
-%         x = devObj.input_file;
-
-%         movefile('/GUI_Devices/Myfunction.mat', [x '.GUI']);%rename the current file 
-        currentFolder = pwd;
         filename = devObj.input_file(1: length(devObj.input_file)-4);
-        errorCode = A_save(devObj, filename);
-        if errorCode 
-            uiwait(errordlg('Save Failed!', 'Error'));
+        save(filename, 'devObj', '-mat');
+        
+        currentFolder = pwd;
+        if ~strcmp(currentFolder(length(currentFolder)-11:length(currentFolder)), 'GUI_Devices')
+            desiredFolder = [currentFolder '\GUI_Devices\'];
         else
-            uiwait(msgbox('Save Complete!', 'Success'));
+            desiredFolder = currentFolder;
         end
         
-=======
-        UpdateTypeSelected(hTypeDropdown, 1);
-        UpdateDesc(hDescField, 1);
-        UpdateTemp(hTempField, 1);
+        saveFileTo = [desiredFolder filename];
+        saveFileFrom = [currentFolder '\' filename];
+        success = movefile(saveFileFrom, [saveFileTo '.GUI']); %rename the current file
+        if success
+            uiwait(msgbox('Save Complete!', 'Success'));
+        else
+            delete filename
+            errordlg('Save Failed!', 'Save Error')
+        end
         
-        % Brings up new menu for saving the device properties
-        disp(['Device Type Selected: ' devObj.type]);
-        temp = sprintf('%.2f', devObj.T);
-        disp(['Temp of Device: ' temp]);
-        disp(['Desc of Device: ' devObj.description]);
-        
-        global data_list 
-        data_list = strings([10,10]);%initiate a data list string that gather the data
-        data_list(1) = devObj.type;%save type of the device into the first data
-        data_list(2) = devObj.T;%save the temperature into the data_list 2
-        data_list(3) = devObj.description;%save the description into the data_list 3
-        save('Myfunction.mat','data_list');%save the data into myfunction mat
-        x = devObj.input_file;
-
-        movefile('/GUI_Devices/Myfunction.mat', [x '.GUI']);%rename the current file 
-
-        
-        questdlg('Save Complete!', 'Save Complete', 'OK', 'OK');
->>>>>>> 5a779391b49835271467c439c7e7d79a58f3ba45
     end
-
-    %function UpdateName(hObject, ~)
-        % Sets Adept object's name to new user entered string
-        % devObj.input_file = hObject.String;
-        % disp(['Device Name: ' devObj.input_file]);
-    %end
-
 end
 
         
