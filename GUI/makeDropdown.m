@@ -45,6 +45,15 @@ dropdownHandle = uicontrol(parent, ...
             else
                 obj.set = obj.default{1};
             end
+        else
+            if isempty(obj.set)
+                if contains(obj.default{1}, '_')
+                    newID = strrep(obj.default{1}, '_', ' ');
+                    obj.set = newID;
+                else
+                    obj.set = obj.default{1};
+                end
+            end
         end
         
         for i = 1:size(array, 2)
@@ -58,6 +67,10 @@ dropdownHandle = uicontrol(parent, ...
     function val = getNameVal(obj)
         if ~isfield(obj, 'name')
             obj.name = obj.aliases{1};
+        else
+            if isempty(obj.name)
+                obj.name = obj.aliases{1};
+            end
         end
         
         for i = 1:size(obj.aliases, 2)
