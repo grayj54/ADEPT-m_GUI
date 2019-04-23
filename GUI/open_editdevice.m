@@ -1,6 +1,5 @@
-function hEditMenu = open_editdevice(devObj, count)
+function hBuildMenu = open_editdevice
     list = getBuiltDevices;
-    device = Adept;
     
     if ( size(list) ~= 0)
         hExistingDevMenu = figure('Visible', 'on', ...
@@ -28,25 +27,32 @@ function hEditMenu = open_editdevice(devObj, count)
             'value',1);
 
     else
-        answer = questdlg(v, ...
-        'Yes', 'No');
+        answer = questdlg('No Built Devices Found. Do you want to create a new device?', ...
+        'Yes', 'No', 'No');
         switch answer
             case 'Yes'
-                open_devname(device, 0);
+                device = defaultDevObj();
+                hBuildMenu = open_devname(device, 0);
             case 'No'
                 % Do Nothing
         end
     end
-   
+
+    uiwait(hExistingDevMenu);
+    currentFolder = pwd;
+    filename = [currentFolder '\GUI_Devices\' ...
+        hListBox.String{hListBox.Value} '.GUI'];
+    % Without A_load in current folder, this next line fails even if the
+    % desired file is in a parent directory.
+    device = A_load(filename);
+    hBuildMenu = openBuildMenu(device);
+    
+    
 end
 
+function AddDev(hObject, ~)
+     uiresume(hObject.Parent);
+end
 
-function AddDev(devObj, ~)
-            device  = Adept;
-           device.input_file = 'Test';
-           openBuildMenu(device)
-        
-     
-    end
 
    

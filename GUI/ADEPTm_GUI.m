@@ -70,7 +70,7 @@ function buildButton_Callback(~, ~)
             case 'Edit Built Device'
                 % load devices for user to select
                 device.input_file = 'Test';
-                hBuildMenu = open_editdevice(device,0);
+                hBuildMenu = open_editdevice;
 %                 [file, path] = uigetfile;
 %                 device = A_load(file);
 %                 hBuildMenu = openBuildMenu(device);

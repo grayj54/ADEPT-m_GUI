@@ -119,7 +119,7 @@ hBuildMenu.Visible = 'on';
 
     function SavePress(~, ~)
         filename = devObj.input_file(1: length(devObj.input_file)-4);
-        save(filename, 'devObj', '-mat');
+        save(filename,  '-mat', 'devObj');
         
         currentFolder = pwd;
         if ~strcmp(currentFolder(length(currentFolder)-11:length(currentFolder)), 'GUI_Devices')
