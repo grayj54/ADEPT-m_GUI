@@ -62,6 +62,8 @@ function [hLayerMenu] = openLayerMenu(devObj)
     
     function SetDevThickStat(~, ~)
         hDevThickText.String = ['Device Thickness:  ' getDevThickness()];
+        % TO DO: Update layer thickness, layer(i).ip(1)
+        % Must check units
     end
 
     function strnum = getDevThickness(~, ~, ~)
@@ -116,7 +118,10 @@ function [hLayerMenu] = openLayerMenu(devObj)
         % Look into uitab "userdata" property
         % Look into uitab "deleteFcn" property
         
-        layersIP = devObj.layers(index-1).ip;
+        if index > size(devObj.layers(1).ip, 1)
+            devObj.layers(1).ip = [devObj.layers(1).ip; a_init_custom];
+        end
+        layersIP = devObj.layers(1).ip(index-1, :);
         
         % Build Basic Parameters Tab Visuals ------------------------------
         hOpenOptParamMenu = makeButton(MyTabArray{3, index}, ...
@@ -138,11 +143,11 @@ function [hLayerMenu] = openLayerMenu(devObj)
 
         hEleAffinMaxEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(3), [450, 690, 100, 20], 12, ...
-            {@UpdateParams, layersIP(3)}, 'num');
+            {@UpdateParams, layersIP(3), 1}, 'num');
         
         hEleAffinMinEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(3), [575, 690, 100, 20], 12, ...
-            {@UpdateParams, layersIP(3)}, 'num');
+            {@UpdateParams, layersIP(3), 2}, 'num');
 
         hBandgapText = makeText(MyTabArray{3, index}, ...
             [layersIP(4).full_name ' (' layersIP(4).units '):'],...
@@ -150,11 +155,11 @@ function [hLayerMenu] = openLayerMenu(devObj)
 
         hBandgapMaxEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(4), [450, 655, 100, 20], 12, ...
-            {@UpdateParams, layersIP(4)}, 'num');
+            {@UpdateParams, layersIP(4), 1}, 'num');
         
         hBandgapMinEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(4), [575, 655, 100, 20], 12, ...
-            {@UpdateParams, layersIP(4)}, 'num');
+            {@UpdateParams, layersIP(4), 2}, 'num');
 
         hDieleConstText = makeText(MyTabArray{3, index}, ...
             [layersIP(5).full_name ':'], [25, 620, 400, 20], ...
@@ -162,11 +167,11 @@ function [hLayerMenu] = openLayerMenu(devObj)
 
         hDieleConstMaxEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(5), [450, 620, 100, 20], 12, ...
-            {@UpdateParams, layersIP(5)}, 'num');
+            {@UpdateParams, layersIP(5), 1}, 'num');
         
         hDieleConstMinEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(5), [575, 620, 100, 20], 12, ...
-            {@UpdateParams, layersIP(5)}, 'num');
+            {@UpdateParams, layersIP(5), 2}, 'num');
 
         hConductBandText = makeText(MyTabArray{3, index}, ...
             [layersIP(6).full_name ' (' layersIP(6).units '):'], ...
@@ -174,11 +179,11 @@ function [hLayerMenu] = openLayerMenu(devObj)
 
         hConductBandMaxEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(6), [450, 585, 100, 20], 12, ...
-            {@UpdateParams, layersIP(6)}, 'num');
+            {@UpdateParams, layersIP(6), 1}, 'num');
         
         hConductBandMinEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(6), [575, 585, 100, 20], 12, ...
-            {@UpdateParams, layersIP(6)}, 'num');
+            {@UpdateParams, layersIP(6), 2}, 'num');
 
         hValenceBandText = makeText(MyTabArray{3, index}, ...
             [layersIP(7).full_name ' (' layersIP(7).units '):'], ...
@@ -186,11 +191,11 @@ function [hLayerMenu] = openLayerMenu(devObj)
 
         hValenceBandMaxEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(7), [450, 550, 100, 20], 12, ...
-            {@UpdateParams, layersIP(7)}, 'num');
+            {@UpdateParams, layersIP(7), 1}, 'num');
 
         hValenceBandMinEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(7), [575, 550, 100, 20], 12, ...
-            {@UpdateParams, layersIP(7)}, 'num');
+            {@UpdateParams, layersIP(7), 2}, 'num');
         
         hElecThermVelocityText = makeText(MyTabArray{3, index}, ...
             [layersIP(10).full_name ' (' layersIP(10).units '):'], ...
@@ -198,11 +203,11 @@ function [hLayerMenu] = openLayerMenu(devObj)
 
         hElecThermVelocityMaxEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(10), [450, 515, 100, 20], 12, ...
-            {@UpdateParams, layersIP(10)}, 'num');
+            {@UpdateParams, layersIP(10), 1}, 'num');
         
         hElecThermVelocityMinEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(10), [575, 515, 100, 20], 12, ...
-            {@UpdateParams, layersIP(10)}, 'num');
+            {@UpdateParams, layersIP(10), 2}, 'num');
 
         hHoleThermVelocityText = makeText(MyTabArray{3, index}, ...
             [layersIP(11).full_name ' (' layersIP(11).units '):'], ...
@@ -210,11 +215,11 @@ function [hLayerMenu] = openLayerMenu(devObj)
 
         hHoleThermVelocityMaxEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(11), [450, 480, 100, 20], 12, ...
-            {@UpdateParams, layersIP(11)}, 'num');
+            {@UpdateParams, layersIP(11), 1}, 'num');
         
         hHoleThermVelocityMinEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(11), [575, 480, 100, 20], 12, ...
-            {@UpdateParams, layersIP(11)}, 'num');
+            {@UpdateParams, layersIP(11), 2}, 'num');
         
         hPlotAxis = axes(MyTabArray{3, index}, ...
             'Units', 'normalized',...
@@ -240,7 +245,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
         
         hElecMobMaxEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(118), [575, 355, 100, 20], 12, ...
-            {@UpdateParams, layersIP(118)}, 'num');
+            {@UpdateParams, devObj.layers(1).ip(index-1,:) 'emax'}, 'num');
         
         hElecMobMinText = makeText(MyTabArray{3, index}, ...
             'min:', [450, 320, 100, 20], 'center', 12);
@@ -250,7 +255,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
         
         hElecMobMinEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(119), [575, 320, 100, 20], 12, ...
-            {@UpdateParams, layersIP(119)}, 'num');
+            {@UpdateParams, devObj.layers(1).ip(index-1,:), 'emin'}, 'num');
         
         hElecMobNrefText = makeText(MyTabArray{3, index}, ...
             'Nref:', [450, 285, 100, 20], 'center', 12);
@@ -317,7 +322,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
         
         hHoleMobMaxEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(123), [575, 125, 100, 20], 12, ...
-            {@UpdateParams, layersIP(123)}, 'num');
+            {@UpdateParams, devObj.layers(1).ip(index-1,:), 'hmax'}, 'num');
         
         hHoleMobMinText = makeText(MyTabArray{3, index}, ...
             'min:', [450, 90, 100, 20], 'center', 12);
@@ -327,7 +332,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
         
         hHoleMobMinEdit = makeEditBox(MyTabArray{3, index}, ...
             layersIP(124), [575, 90, 100, 20], 12, ...
-            {@UpdateParams, layersIP(124)}, 'num');
+            {@UpdateParams, devObj.layers(1).ip(index-1,:), 'hmin'}, 'num');
         
         hHoleMobNrefText = makeText(MyTabArray{3, index}, ...
             'Nref:', [450, 55, 100, 20], 'center', 12);
@@ -441,18 +446,64 @@ function [hLayerMenu] = openLayerMenu(devObj)
         
         
         % Build Basic Parameters Tab Functions ----------------------------
-        function UpdateParams(hObject, eventData, editedIP)
+        function UpdateParams(hObject, eventData, editedIP, varargin)
             plotMobility();
             if isfield(editedIP, 'full_name')
-                switch editedIP.full_name
-                    case 'Mobility model for electrons'
-                        UpdateIP(hObject, devObj, editedIP.full_name,...
-                            eventData);
-                    case 'Mobility model for holes'
-                        UpdateIP(hObject, devObj, editedIP.full_name,...
-                            eventData);
+                % find index of layers array
+                level = hObject.Parent.Parent.Parent.Parent;
+                for i = 1:length(level.Children)
+                    if strcmp(level.SelectedTab.Title, level.Children(i).Title)
+                        num = i-1;
+                        break;
+                    end
+                end
+                
+                switch length(varargin)
+                    case 1
+                        switch varargin{1}
+                            case 'emax'
+                                if hElecMobModelDropdown.Value == 1
+                                    UpdateIP(hObject, devObj, ...
+                                        editedIP(14).full_name, num, 1);
+                                else
+                                    UpdateIP(hObject, devObj, ...
+                                        editedIP(118).full_name, num);
+                                end
+                                
+                            case 'emin'
+                                if hElecMobModelDropdown.Value == 1
+                                    UpdateIP(hObject, devObj, ...
+                                        editedIP(14).full_name, num, 2);
+                                else
+                                    UpdateIP(hObject, devObj, ...
+                                        editedIP(119).full_name, num);
+                                end
+                                
+                            case 'hmax'
+                                if hHoleMobModelDropdown.Value == 1
+                                    UpdateIP(hObject, devObj, ...
+                                        editedIP(15).full_name, num, 1);
+                                else
+                                    UpdateIP(hObject, devObj, ...
+                                        editedIP(123).full_name, num);
+                                end
+                                
+                            case 'hmin'
+                                if hHoleMobModelDropdown.Value == 1
+                                    UpdateIP(hObject, devObj, ...
+                                        editedIP(15).full_name, num, 2);
+                                else
+                                    UpdateIP(hObject, devObj, ...
+                                        editedIP(124).full_name, num);
+                                end
+                                
+                            otherwise
+                                UpdateIP(hObject, devObj, editedIP.full_name, ...
+                                    num, varargin{1});
+                        end                        
                     otherwise
-                        UpdateIP(hObject, devObj, editedIP.full_name);
+                        UpdateIP(hObject, devObj, editedIP.full_name, ...
+                            num);
                 end
             else
                UpdateIP(hObject, devObj, editedIP);
@@ -481,6 +532,8 @@ function [hLayerMenu] = openLayerMenu(devObj)
                     hEq1Text.Visible = 'on';
                     hElecMobStartText.Visible = 'on';
                     hElecMobEndText.Visible = 'on';
+                    % TO DO: Update visuals since C-T nums may be different
+                    
                 case 'C-T'
                     hEq2Text.Visible = 'on';
                     hElecMobMaxText.Visible = 'on';
@@ -491,6 +544,8 @@ function [hLayerMenu] = openLayerMenu(devObj)
                     hElecMobAlphaText.Visible = 'on';
                     hElecMobAlphaEdit.Visible = 'on';
                     hElecMobAlphaEdit.Enable = 'on';
+                    % TO DO: Update visuals since Linear nums may be different
+                    
                 otherwise
                     % do nothing
             end
@@ -530,6 +585,8 @@ function [hLayerMenu] = openLayerMenu(devObj)
                     hEq3Text.Visible = 'on';
                     hHoleMobStartText.Visible = 'on';
                     hHoleMobEndText.Visible = 'on';
+                    % TO DO: Update visuals since C-T nums may be different
+                    
                 case 'C-T'
                     hEq4Text.Visible = 'on';
                     hHoleMobMaxText.Visible = 'on';
@@ -540,21 +597,14 @@ function [hLayerMenu] = openLayerMenu(devObj)
                     hHoleMobAlphaText.Visible = 'on';
                     hHoleMobAlphaEdit.Visible = 'on';
                     hHoleMobAlphaEdit.Enable = 'on';
+                    % TO DO: Update visuals since Linear nums may be different
+                    
                 otherwise
                     % do nothing
             end
-            
-            % edit ip struct
-            level = hObject.Parent.Parent.Parent.Parent;
-            for i = 1:length(level.Children)
-                if strcmp(level.SelectedTab.Title, level.Children(i).Title)
-                    num = i-1;
-                    break;
-                end
-            end
-            
+                    
             % num should be the position of the layer in inputs array
-            UpdateParams(hObject, num, editedIP);
+            UpdateParams(hObject, 'nothing', editedIP);
             
         end        
         
