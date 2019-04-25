@@ -218,7 +218,9 @@ function [hLayerMenu] = openLayerMenu(devObj)
         
         hPlotAxis = axes(MyTabArray{3, index}, ...
             'Units', 'normalized',...
-            'Position', [0.1, 0.15, .4, .4]); 
+            'Position', [0.1, 0.15, .4, .4]);
+        
+        hPlotAxis.Color = [0.66, 0.66, 0.66]; %Grey
         
         % ip for C-T mobility starts at 117        
         % choices are 'linear' and 'C-T' which are vague
@@ -268,7 +270,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
         hElecMobMinText.Visible = 'off';
         hElecMobNrefText.Visible = 'off';
         hElecMobNrefEdit.Visible = 'off';
-        hElecMobNrefText.Enable = 'off';
+        hElecMobNrefEdit.Enable = 'off';
         hElecMobAlphaText.Visible = 'off';
         hElecMobAlphaEdit.Visible = 'off';
         hElecMobAlphaEdit.Enable = 'off';
@@ -305,7 +307,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
         
         hHoleMobModelDropdown = makeDropdown(MyTabArray{3, index}, ...
             layersIP(122).values, [575, 215, 100, 20], 10, ...
-            @UpdateHoleMobilityModel, layersIP(122), 'set');     
+            {@UpdateHoleMobilityModel, layersIP(122)}, layersIP(122), 'set');     
         
         hHoleMobMaxText = makeText(MyTabArray{3, index}, ...
             'max:',  [450, 125, 100, 20], 'center', 12);
@@ -345,7 +347,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
         hHoleMobMinText.Visible = 'off';
         hHoleMobNrefText.Visible = 'off';
         hHoleMobNrefEdit.Visible = 'off';
-        hHoleMobNrefText.Enable = 'off';
+        hHoleMobNrefEdit.Enable = 'off';
         hHoleMobAlphaText.Visible = 'off';
         hHoleMobAlphaEdit.Visible = 'off';
         hHoleMobAlphaEdit.Enable = 'off';
@@ -442,12 +444,16 @@ function [hLayerMenu] = openLayerMenu(devObj)
         function UpdateParams(hObject, eventData, editedIP)
             plotMobility();
             if isfield(editedIP, 'full_name')
-               if strcmp(editedIP.full_name, 'Operating Temperature')
-                   UpdateIP(hObject, devObj, editedIP.full_name, hTempField, ...
-                       hTempUnitDropdown);
-               else
-                   UpdateIP(hObject, devObj, editedIP.full_name);
-               end
+                switch editedIP.full_name
+                    case 'Mobility model for electrons'
+                        UpdateIP(hObject, devObj, editedIP.full_name,...
+                            eventData);
+                    case 'Mobility model for holes'
+                        UpdateIP(hObject, devObj, editedIP.full_name,...
+                            eventData);
+                    otherwise
+                        UpdateIP(hObject, devObj, editedIP.full_name);
+                end
             else
                UpdateIP(hObject, devObj, editedIP);
             end
@@ -462,7 +468,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
             hElecMobMinText.Visible = 'off';
             hElecMobNrefText.Visible = 'off';
             hElecMobNrefEdit.Visible = 'off';
-            hElecMobNrefText.Enable = 'off';
+            hElecMobNrefEdit.Enable = 'off';
             hElecMobAlphaText.Visible = 'off';
             hElecMobAlphaEdit.Visible = 'off';
             hElecMobAlphaEdit.Enable = 'off';
@@ -481,7 +487,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
                     hElecMobMinText.Visible = 'on';
                     hElecMobNrefText.Visible = 'on';
                     hElecMobNrefEdit.Visible = 'on';
-                    hElecMobNrefText.Enable = 'on';
+                    hElecMobNrefEdit.Enable = 'on';
                     hElecMobAlphaText.Visible = 'on';
                     hElecMobAlphaEdit.Visible = 'on';
                     hElecMobAlphaEdit.Enable = 'on';
@@ -490,7 +496,15 @@ function [hLayerMenu] = openLayerMenu(devObj)
             end
             
             % edit ip struct
-            UpdateIP(hObject, devObj, editedIP.full_name);
+            level = hObject.Parent.Parent.Parent.Parent;
+            for i = 1:length(level.Children)
+                if strcmp(level.SelectedTab.Title, level.Children(i).Title)
+                    num = i-1;
+                    break;
+                end
+            end
+            % num should be the position of the layer in inputs array 
+            UpdateParams(hObject, num, editedIP);
             
         end        
         
@@ -503,7 +517,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
             hHoleMobMinText.Visible = 'off';
             hHoleMobNrefText.Visible = 'off';
             hHoleMobNrefEdit.Visible = 'off';
-            hHoleMobNrefText.Enable = 'off';
+            hHoleMobNrefEdit.Enable = 'off';
             hHoleMobAlphaText.Visible = 'off';
             hHoleMobAlphaEdit.Visible = 'off';
             hHoleMobAlphaEdit.Enable = 'off';
@@ -522,7 +536,7 @@ function [hLayerMenu] = openLayerMenu(devObj)
                     hHoleMobMinText.Visible = 'on';
                     hHoleMobNrefText.Visible = 'on';
                     hHoleMobNrefEdit.Visible = 'on';
-                    hHoleMobNrefText.Enable = 'on';
+                    hHoleMobNrefEdit.Enable = 'on';
                     hHoleMobAlphaText.Visible = 'on';
                     hHoleMobAlphaEdit.Visible = 'on';
                     hHoleMobAlphaEdit.Enable = 'on';
@@ -531,8 +545,16 @@ function [hLayerMenu] = openLayerMenu(devObj)
             end
             
             % edit ip struct
-            num = 1; % num should be the position of the layer that was edited
-            UpdateIP(hObject, devObj, editedIP.full_name, num);
+            level = hObject.Parent.Parent.Parent.Parent;
+            for i = 1:length(level.Children)
+                if strcmp(level.SelectedTab.Title, level.Children(i).Title)
+                    num = i-1;
+                    break;
+                end
+            end
+            
+            % num should be the position of the layer in inputs array
+            UpdateParams(hObject, num, editedIP);
             
         end        
         
@@ -542,36 +564,73 @@ function [hLayerMenu] = openLayerMenu(devObj)
             
             switch elecModel
                 case 'linear'
-                    startVal = str2double(hElecMobMaxEdit.String);
-                    endVal = str2double(hElecMobMinEdit.String);
-                    NElec = logspace(1, 21, 21);
-                    muElec = linspace(startVal,endVal,21);
+%                     startVal = str2double(hElecMobMaxEdit.String);
+%                     endVal = str2double(hElecMobMinEdit.String);
+%                     NElec = logspace(1, 21, 21);
+%                     muElec = linspace(startVal,endVal,21);
                 case 'C-T'
-                    % Do something else
+                    % Setup Caughey-Thomas
+                    maxVal = str2double(hElecMobMaxEdit.String);
+                    minVal = str2double(hElecMobMinEdit.String);
+                    NrefVal = str2double(hElecMobNrefEdit.String);
+                    alphaVal = str2double(hElecMobAlphaEdit.String);
+                    NElec = logspace(1, 21, 21);
+                    muElec = minVal + (maxVal - minVal)./(1+(NElec./NrefVal).^alphaVal);
                 otherwise
                     % Do nothing
             end
             
             switch holeModel
                 case 'linear'
-                    startVal = str2double(hHoleMobMaxEdit.String);
-                    endVal = str2double(hHoleMobMinEdit.String);
-                    NHole = logspace(1, 21, 21);
-                    muHole = linspace(startVal,endVal,21);
+%                     startVal = str2double(hHoleMobMaxEdit.String);
+%                     endVal = str2double(hHoleMobMinEdit.String);
+%                     NHole = logspace(1, 21, 21);
+%                     muHole = linspace(startVal,endVal,21);
                 case 'C-T'
-                    % Do something else
+                    % Setup Caughey-Thomas
+                    maxVal = str2double(hHoleMobMaxEdit.String);
+                    minVal = str2double(hHoleMobMinEdit.String);
+                    NrefVal = str2double(hHoleMobNrefEdit.String);
+                    alphaVal = str2double(hHoleMobAlphaEdit.String);
+                    NHole = logspace(1, 21, 21);
+                    muHole = minVal + (maxVal - minVal)./(1+(NHole./NrefVal).^alphaVal);
+
                 otherwise
                     % Do nothing
             end
+              
+            if strcmp(holeModel, 'linear') && strcmp(elecModel, 'linear')
+                % plot nothing
+                if exist('muPlot', 'var')
+                    delete(muPlot);
+                end
+                hPlotAxis.Color = [0.66, 0.66, 0.66]; %Grey
+            elseif strcmp(holeModel, 'linear') && ~strcmp(elecModel, 'linear')
+                % Plot only electron
+                hPlotAxis.Color = [1,1,1]; % White
+                muPlot = semilogx(hPlotAxis, NElec, muElec);
+                legend(muPlot, 'Electron Mobility');
+            elseif ~strcmp(holeModel, 'linear') && strcmp(elecModel, 'linear')
+                % Plot only hole
+                hPlotAxis.Color = [1,1,1]; % White
+                muPlot = semilogx(hPlotAxis, NHole, muHole);
+                legend(muPlot, 'Hole Mobility');
+            else
+                % Plot both
+                hPlotAxis.Color = [1,1,1]; % White
+                muPlot = semilogx(hPlotAxis, NElec, muElec, 'r', NHole, ...
+                    muHole, 'b');
+                legend(muPlot, 'Electron Mobility', 'Hole Mobility');                
+            end
             
-            muPlot = semilogx(hPlotAxis, NElec, muElec, 'r', NHole, muHole, 'b');
-            legend(muPlot, 'Electron Mobility', 'Hole Mobility');
             hPlotAxis.XLabel.String = 'Concentration N';
             hPlotAxis.YLabel.Interpreter ='tex';
             hPlotAxis.YLabel.String = '\mu';
-            hPlotAxis.Title.String = 'Mobility';
+            hPlotAxis.Title.String = 'Caughey-Thomas Mobility';
             hPlotAxis.Title.FontSize = 16;
             hPlotAxis.XGrid = 'on';
+            hPlotAxis.YGrid = 'on';
+            
             
         end
         % Build Trap Parameters Tab Functions -----------------------------
