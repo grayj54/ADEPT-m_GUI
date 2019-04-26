@@ -5,12 +5,21 @@ if isempty(ADEPT_INIT_FLAG)
     a_init;
 else    
     fprintf('\nADEPT.m Version: %s\n\n',ADEPT_VERSION);
+    
     fprintf('Author: Jeffery L. Gray, grayj@purdue.edu');
     fprintf('\n        School of Electrical and Computer Engineering');
     fprintf('\n        Purdue University');
     fprintf('\n        West Lafayette, IN 47907\n\n');
+    
+    fprintf('GUI Contributors:\n');
+    fprintf('        Sanna Kapoor (VIP Spring 2019, Fall 2018)\n');
+    fprintf('        Josh Oderkirk (VIP Spring 2019, Fall 2018)\n');
+    fprintf('        Aidthya Nataraja Sundaram (VIP Spring 2019)\n');
+    fprintf('        Matthew Olinde (VIP Spring 2019)\n');
+    fprintf('        Yidi Du (VIP Fall 2018)\n');
+    fprintf('        Xinrui Zhang (VIP Fall 2018)\n');
 
-    fprintf('ADEPT-m is a research/educational tool and is supplied free of\n')
+    fprintf('\nADEPT-m is a research/educational tool and is supplied free of\n')
     fprintf('charge to users as-is. No warranty, expressed or implied, is\n')
     fprintf('made by the author, the School of Electrical & Computer Engineering,\n')
     fprintf('or Purdue Universty. Neither the author, the School of Electrical\n')

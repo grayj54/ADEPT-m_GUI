@@ -1,4 +1,4 @@
-function [struct ierr]=a_diktat(pp,ip,fout)
+function [strct,ierr]=a_diktat(pp,ip,fout)
 % interpret diktat 'pp' from definitions in 'ip'
 % results placed in 'struct'
 %
@@ -222,5 +222,17 @@ end
 if ierr > 0
     error('a_diktat.m: Errors found on diktat')
 else
-    struct=ip;
+    for i=1:length(ip)
+        strct(i).aliases=ip(i).aliases;
+        try strct(i).units=ip(i).units; end
+        try strct(i).full_name=ip(i).full_name; end
+        strct(i).type=ip(i).type;
+        strct(i).n=ip(i).n;
+        strct(i).range=ip(i).range;
+        strct(i).values=ip(i).values;
+        strct(i).default=ip(i).default;
+        strct(i).name=ip(i).name; % alias used
+        strct(i).set=ip(i).set; % set value
+      % strct(i).default_used=ip(i).default_used;
+    end
 end

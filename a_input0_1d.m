@@ -1,6 +1,6 @@
-function [dev ierr]=a_input0_1d(devin,source)
+function [inputs,ierr]=a_input0_1d(source)
 
-global REF CONST A_FID VERBOSE
+global REF A_FID VERBOSE
 
 %
 % available diktats:
@@ -19,11 +19,9 @@ fin=fopen(source,'rt');
 if fin == -1
     error('cannot open %s',source);
 end
-dev=devin;
-dev.nD='1D';
-dev.input_file=source;
-dev.OpCond.mode='equilibrium';
-dev.const=CONST;
+inputs.nD='1D'; % --> dev.nD
+inputs.input_file=source; % --> dev.input_file
+inputs.type='diktat_input';
 
 scan=1;
 ldiktat='none';
@@ -35,7 +33,6 @@ nm=0; % mesh diktat count
 nmisc=0; % misc diktat count
 nbc=0; % bc diktat count
 ns=0; % solve diktat count
-thick=0; % thickness of device
 nart=0;
 narb=0;
 nlayer=0;
@@ -58,8 +55,6 @@ while scan == 1
 	  if VERBOSE; fprintf(A_FID,'      *---* %s\n',p.errmess); end
 	  ierr=ierr+1;
     end
-
-    dev.diktats(nc)={p.statement};
 
     if strcmp(ldiktat,'*layer')
           if strcmp(p.diktat,'layer') == 0
@@ -86,7 +81,7 @@ while scan == 1
     if strcmp(p.diktat,'*') || strcmp(p.diktat,'*title')
         nt=nt+1;
         if nc == 1 && nt == 1
-	        [dev.description kerr]=a_title(p,A_FID);
+	        [inputs.title,kerr]=a_title(p,A_FID); % --> dev.description
         end 
         if kerr > 0
             ierr=ierr+1;
@@ -104,7 +99,7 @@ while scan == 1
     elseif strcmp(p.diktat,'mesh')
         nm=nm+1;
         if nm == 1
-            [dev kerr]=a_rmesh(p,dev,A_FID);
+            [inputs,kerr]=a_rmesh(p,inputs);
             if kerr > 0
                 ierr=ierr+1;
             end
@@ -116,7 +111,7 @@ while scan == 1
     elseif strcmp(p.diktat,'device') == 1
         ns=ns+1;
         if ns == 1
-	        [dev kerr]=a_rdev(p,dev,A_FID);
+	        [inputs,kerr]=a_rdev(p,inputs);
             if kerr > 0
                 ierr=ierr+1;
             end
@@ -133,7 +128,7 @@ while scan == 1
            REF.t=300; % so that a_rmisc will run
         end
         if nmisc == 1
-	        [dev kerr]=a_rmisc(p,dev,A_FID);
+	        [inputs,kerr]=a_rmisc(p,inputs);
             if kerr > 0
                 ierr=ierr+1;
             end
@@ -149,12 +144,12 @@ while scan == 1
                 ierr=ierr+1;
                 if VERBOSE; fprintf(A_FID,'      *---* bc diktat must preceed first layer diktat\n'); end
             end
-	        [dev kerr]=a_readbc(p,dev,A_FID,'top');
+	        [inputs,kerr]=a_readbc(p,inputs,'top');
             if kerr > 0
                 ierr=ierr+1;
             end
         elseif nbc == 2
-	        [dev kerr]=a_readbc(p,dev,A_FID,'bot');
+	        [inputs,kerr]=a_readbc(p,inputs,'bot');
             if kerr > 0
                 ierr=ierr+1;
             end
@@ -164,34 +159,34 @@ while scan == 1
         end
     % *ar diktat
     elseif strcmp(p.diktat,'*ar')
-        [ftitle kerr]=a_ftitle(p,A_FID);
+        [ftitle kerr]=a_ftitle(p);
         if kerr > 0
             ierr=ierr+1;
         end
     % ar diktat
-    elseif strcmp(p.diktat,'ar')
-        if nlayer == 0
-            nart=nart+1;
-            if strcmp(ldiktat,'*ar') == 0
-                ftitle=sprintf('Top ar layer # %d',nart);
-            end
-            [dev kerr]=a_filteri(p,dev,A_FID,ftitle,'top',nart);
-            if kerr > 0
-                ierr=ierr+1;
-            end
-        else
-            narb=narb+1;
-            if strcmp(ldiktat,'*filter') == 0 || strcmp(ldiktat,'*ar') == 0
-                ftitle=sprintf('Bottom ar layer # %d',narb);
-            end
-            [dev kerr]=a_filteri(p,dev,A_FID,ftitle,'bot',ftype,narb);
-            if kerr > 0
-                ierr=ierr+1;
-            end;
-        end
+%     elseif strcmp(p.diktat,'ar')
+%         if nlayer == 0
+%             nart=nart+1;
+%             if strcmp(ldiktat,'*ar') == 0
+%                 ftitle=sprintf('Top ar layer # %d',nart);
+%             end
+%             [inputs,kerr]=a_filteri(p,inputs,A_FID,ftitle,'top',nart);
+%             if kerr > 0
+%                 ierr=ierr+1;
+%             end
+%         else
+%             narb=narb+1;
+%             if strcmp(ldiktat,'*filter') == 0 || strcmp(ldiktat,'*ar') == 0
+%                 ftitle=sprintf('Bottom ar layer # %d',narb);
+%             end
+%             [inputs,kerr]=a_filteri(p,inputs,A_FID,ftitle,'bot',ftype,narb);
+%             if kerr > 0
+%                 ierr=ierr+1;
+%             end;
+%         end
 	% *layer diktat
     elseif strcmp(p.diktat,'*layer')
-        [ltitle kerr]=a_ltitle(p,A_FID);
+        [ltitle,kerr]=a_ltitle(p);
         if kerr > 0
             ierr=ierr+1;
         end
@@ -205,12 +200,9 @@ while scan == 1
         if strcmp(ldiktat,'*layer') == 0
             ltitle=sprintf('Layer # %d',nlayer);
         end
-	      [dev kerr]=a_rlayer(p,dev,A_FID,ltitle,nlayer,thick);
+	      [inputs,kerr]=a_rlayer(p,inputs,ltitle,nlayer);
         if kerr > 0
             ierr=ierr+1;
-        end
-        if ierr == 0
-          thick=thick+dev.reg(nlayer).max-dev.reg(nlayer).min;
         end
     % undefined diktat
 	else
@@ -222,13 +214,13 @@ end
 
 % set default description
 if nt == 0
-    dev.dscription='Puedue University ADEPT-m Simulation';
+    inputs.dscription='Puedue University ADEPT-m Simulation';
 end
 
 % if no mesh diktat, set defaults
 if nm == 0
     p.nvar=0;
-    [dev kerr]=a_rmesh(p,dev,A_FID);
+    [inputs,kerr]=a_rmesh(p,inputs);
     if kerr > 0
         ierr=ierr+1;
         if VERBOSE; fprintf(A_FID,'Error setting mesh defaults\n'); end
@@ -244,8 +236,8 @@ end
 % if no misc diktat, set defaults
 if nmisc == 0
     p.nvar=0;
-    if ns == 0;REF.t=300;end % so that a_rmisc will run
-    [dev kerr]=a_rmisc(p,dev,A_FID);
+    if ns == 0;REF.t=-1;end % so that a_rmisc will run
+    [inputs,kerr]=a_rmisc(p,inputs);
     if kerr > 0
         ierr=ierr+1;
         if VERBOSE; fprintf(A_FID,'Error setting misc defaults\n'); end
@@ -255,7 +247,7 @@ end
 % if no bc diktat, set defaults
 if nbc == 0
     p.nvar=0;
-    [dev kerr]=a_readbc(p,dev,A_FID);
+    [inputs,kerr]=a_readbc(p,inputs);
     if kerr > 0
         ierr=ierr+1;
         if VERBOSE; fprintf(A_FID,'Error setting bc defaults\n'); end
@@ -266,30 +258,6 @@ end
 if nlayer == 0
     if VERBOSE; fprintf(A_FID,'There must be at least 1 layer diktat\n'); end
 end
-
-dev.mesh.thick=thick;
-
-% save REF
-dev.ref=REF;
-
-% set normalization parameters
-dev.norm.D=1; % diffusion coeff (cm^2/s)   
-dev.norm.t=REF.t; % temperature (deg K)
-dev.norm.v=CONST.kb*dev.norm.t; % potential, voltage, energy (V, eV)
-dev.norm.n=dev.ref.ni; % carrier concentration (#/cm^3)
-if dev.norm.n == 0
-    error('a_input0_1d.m: carrier normalization factor is zero to machine precision\m')
-end
-dev.norm.ks=dev.ref.ks; % dielectric constant (no units)
-dev.norm.x=sqrt(dev.norm.ks*CONST.e0*dev.norm.v/dev.norm.n/CONST.q); % distance (cm)
-dev.norm.rg=dev.norm.D*dev.norm.n/dev.norm.x/dev.norm.x; % recombination rate (#/cm^3/s)
-dev.norm.j=CONST.q*dev.norm.D*dev.norm.n/dev.norm.x; % current density (A/cm^2)
-dev.norm.time=dev.norm.x*dev.norm.x/dev.norm.D; % time, lifetime (s)
-dev.norm.u=dev.norm.D/dev.norm.v; % mobility (cm^2/V/s) -- Diffusion coeff noramized to 1
-dev.norm.s=dev.norm.D/dev.norm.x; % recombination velocity, thermal velocity (cm/s)
-dev.norm.B=dev.norm.rg/dev.norm.n^2; % radiative recomb coeff (cm^3/s)
-dev.norm.C=dev.norm.rg/dev.norm.n^3; % Auger recomb coeff (cm^6/s)
-dev.norm.cap_area=1/dev.norm.n/dev.norm.time/dev.norm.s; % capture cross-section (cm^2)
 
 fclose(fin);
 try fflush(A_FID);
