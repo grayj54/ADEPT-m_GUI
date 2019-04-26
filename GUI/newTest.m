@@ -55,7 +55,8 @@ function newTest_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for newTest
 handles.output = hObject;
 handles.illum = 0;
-
+handles.solarcell = 1;
+handles.iv = 0;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -104,11 +105,12 @@ function checkbox1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox1
-global Dev;
+%global Dev;
 if (get(hObject,'Value') == get(hObject,'Max'))
-    A_IV(Dev,handles.illum);
+%    A_IV(Dev,handles.illum);
+   handles.iv = 1;
 else
-    
+    handles.iv = 0;
 	% delete IV
 end
 
@@ -119,13 +121,16 @@ function checkbox2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox2
-global Dev;
+%global Dev;
+
 if (get(hObject,'Value') == get(hObject,'Max'))
-	A_SolarCell(Dev,handles.illum);
+    %A_SolarCell(Dev,handles.illum);
+    handles.solarcell = 1;
 else
-    
+    handles.solarcell = 0;
 	% delete SC
 end
+
 
 
 
@@ -236,3 +241,11 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global Dev;
+if (handles.iv == 1)
+    A_IV(Dev,handles.illum);
+end
+if(handles.solarcell == 1)
+    A_SolarCell(Dev,handles.illum);
+end
+    

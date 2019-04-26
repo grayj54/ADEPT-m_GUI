@@ -54,20 +54,33 @@ hTitleText     = uicontrol(hMainMenu, ...
 % make UI visible
 hMainMenu.Visible = 'on';
 
-% make new objects --------------------------------------------------------
-% open build menu
-device = Adept;
-
-% make test menu
-% environment = Environment;
-
-% make examine menu
-% examineMenu = ExamineMenu;
-
 % Main Menu Callbacks -----------------------------------------------------
 function buildButton_Callback(~, ~)
-    % Open Build Menu and return user changed values
-    open_devname(device);
+    figureArray = findall(groot, 'Type', 'figure');
+    if length(figureArray) < 2  || ~strcmp(figureArray(2).Name, 'Build Menu')
+        % Open Build Menu if not already open and return user changed values
+        % Open Build Menu and return user changed values
+        answer = questdlg('Do you want to create or edit a device?', ...
+            'Create or Edit Device?', 'Create New Device', ...
+            'Edit Built Device', 'Cancel', 'Create New Device');
+        switch answer
+            case 'Create New Device'
+                device = defaultDevObj();
+                hBuildMenu = open_devname(device, 0);
+            case 'Edit Built Device'
+                % load devices for user to select
+                device.input_file = 'Test';
+                hBuildMenu = open_editdevice;
+%                 [file, path] = uigetfile;
+%                 device = A_load(file);
+%                 hBuildMenu = openBuildMenu(device);
+            case 'Cancel'
+                % Do Nothing
+        end
+    else
+        uiwait(errordlg('Please save and close current device before creating or editing another.', ...
+            'Error'));    
+    end
 end
 
 function testButton_Callback(~, ~)
